@@ -1,79 +1,96 @@
-import { Logo } from "@once-ui-system/core";
+import { Logo } from '@once-ui-system/core';
 
 const person = {
-  firstName: "Selene",
-  lastName: "Yu",
+  firstName: 'Deepak',
+  lastName: 'Dev',
   get name() {
     return `${this.firstName} ${this.lastName}`;
   },
-  role: "Design Engineer",
-  avatar: "/images/avatar.jpg",
-  email: "example@gmail.com",
-  location: "Asia/Jakarta", // Expecting the IANA time zone identifier, e.g., 'Europe/Vienna'
-  languages: ["English", "Bahasa"], // optional: Leave the array empty if you don't want to display languages
+  role: 'Full Stack Engineer',
+  avatar: '/images/avatar.jpg',
+  email: 'deepakdevp@gmail.com',
+  location: 'Asia/Tokyo', // Expecting the IANA time zone identifier, e.g., 'Europe/Vienna'
+  languages: ['English', 'Hindi', 'Japanese'], // optional: Leave the array empty if you don't want to display languages
 };
-
-const newsletter = {
-  display: true,
-  title: <>Subscribe to {person.firstName}'s Newsletter</>,
-  description: (
-    <>
-      I occasionally write about design, technology, and share thoughts on the intersection of
-      creativity and engineering.
-    </>
-  ),
-};
-
 const social = [
   // Links are automatically displayed.
   // Import new icons in /once-ui/icons.ts
   {
-    name: "GitHub",
-    icon: "github",
-    link: "https://github.com/once-ui-system/nextjs-starter",
+    name: 'GitHub',
+    icon: 'github',
+    link: 'https://github.com/deepakdevp',
   },
   {
-    name: "LinkedIn",
-    icon: "linkedin",
-    link: "https://www.linkedin.com/company/once-ui/",
+    name: 'LinkedIn',
+    icon: 'linkedin',
+    link: 'https://www.linkedin.com/in/deepak-dev-panwar-166187135/',
   },
+
   {
-    name: "Threads",
-    icon: "threads",
-    link: "https://www.threads.com/@once_ui",
-  },
-  {
-    name: "Email",
-    icon: "email",
+    name: 'Email',
+    icon: 'email',
     link: `mailto:${person.email}`,
   },
 ];
 
+const contact = {
+  display: true,
+  title: <>Contact Me</>,
+  description: (
+    <>
+      Interested in working together or want to connect? Choose an
+      option below to get in touch!
+    </>
+  ),
+  options: [
+    {
+      name: 'Schedule a Call',
+      icon: 'calendar',
+      link: 'https://cal.com/deepakdevp', // Uses the existing calendar link
+    },
+    {
+      name: 'Email',
+      icon: 'email',
+      link: `mailto:${person.email}`,
+    },
+    {
+      name: 'LinkedIn',
+      icon: 'linkedin',
+      link: social.find((s) => s.name === 'LinkedIn').link,
+    },
+  ],
+};
+
 const home = {
-  path: "/",
-  image: "/images/og/home.jpg",
-  label: "Home",
+  path: '/',
+  image: '/images/og/home.jpg',
+  label: 'Home',
   title: `${person.name}'s Portfolio`,
   description: `Portfolio website showcasing my work as a ${person.role}`,
   headline: <>Building bridges between design and code</>,
   featured: {
     display: true,
-    title: <>Recent project: <strong className="ml-4">Once UI</strong></>,
-    href: "/work/building-once-ui-a-customizable-design-system",
+    title: (
+      <>
+        Recent project: <strong className="ml-4">AI Chatbot</strong>
+      </>
+    ),
+    href: '/work/building-once-ui-a-customizable-design-system',
   },
   subline: (
     <>
-      I'm Selene, a design engineer at <Logo icon="/trademarks/wordmark-dark.svg" style={{ display: "inline-flex", top: "0.25em", marginLeft: "-0.25em" }}/>, where I craft intuitive
+      I'm Deepak Dev, a FullStack Engineer at Medikabazaar , where I
+      craft intuitive
       <br /> user experiences. After hours, I build my own projects.
     </>
   ),
 };
 
 const about = {
-  path: "/about",
-  label: "About",
-  title: `About – ${person.name}`,
-  description: `Meet ${person.name}, ${person.role} from ${person.location}`,
+  path: '/about',
+  label: 'About',
+  title: `About – Deepak Dev Panwar`,
+  description: `Meet Deepak Dev Panwar, Full Stack Software Engineer from India`,
   tableOfContent: {
     display: true,
     subItems: false,
@@ -83,59 +100,117 @@ const about = {
   },
   calendar: {
     display: true,
-    link: "https://cal.com",
+    link: 'https://cal.com/deepakdevp',
   },
   intro: {
     display: true,
-    title: "Introduction",
+    title: 'Introduction',
     description: (
       <>
-        Selene is a Jakarta-based design engineer with a passion for transforming complex challenges
-        into simple, elegant design solutions. Her work spans digital interfaces, interactive
-        experiences, and the convergence of design and technology.
+        Deepak Dev Panwar is a Full Stack Software Engineer with 5+
+        years of experience in building scalable web applications
+        using React, Next.js, Django, and Java Spring Boot. He
+        specializes in centralized authentication, CI/CD pipelines,
+        and performance optimization. Deepak has led cross-functional
+        teams and contributed to fintech, medical, and AI-based
+        solutions.
       </>
     ),
   },
   work: {
-    display: true, // set to false to hide this section
-    title: "Work Experience",
+    display: true,
+    title: 'Work Experience',
     experiences: [
       {
-        company: "FLY",
-        timeframe: "2022 - Present",
-        role: "Senior Design Engineer",
+        company: 'Medikabazaar',
+        timeframe: 'Apr 2024 – Present',
+        role: 'SDE 2 / Full Stack Engineer',
         achievements: [
           <>
-            Redesigned the UI/UX for the FLY platform, resulting in a 20% increase in user
-            engagement and 30% faster load times.
+            Built Seller Management Portal with React & Node.js,
+            reducing onboarding time by 90%.
           </>,
           <>
-            Spearheaded the integration of AI tools into design workflows, enabling designers to
-            iterate 50% faster.
+            Created centralized User Access Management system across 8
+            platforms.
+          </>,
+          <>
+            Led UI component library development with Storybook &
+            Chromatic.
+          </>,
+          <>
+            Implemented Jenkins, Kafka, Docker pipelines with
+            observability tools.
+          </>,
+          <>
+            Managed a team of 5 engineers, ensuring timely and
+            high-quality delivery.
           </>,
         ],
-        images: [
-          // optional: leave the array empty if you don't want to display images
-          {
-            src: "/images/projects/project-01/cover-01.jpg",
-            alt: "Once UI Project",
-            width: 16,
-            height: 9,
-          },
-        ],
+        images: [],
       },
       {
-        company: "Creativ3",
-        timeframe: "2018 - 2022",
-        role: "Lead Designer",
+        company: 'Medikabazaar',
+        timeframe: 'Mar 2022 – Mar 2024',
+        role: 'SDE 1 / Full Stack Engineer',
         achievements: [
           <>
-            Developed a design system that unified the brand across multiple platforms, improving
-            design consistency by 40%.
+            Developed Medical Device Service Platform with React,
+            Ionic, Django.
           </>,
           <>
-            Led a cross-functional team to launch a new product line, contributing to a 15% increase
-            in overall company revenue.
+            Automated financial modules using React & Spring Boot with
+            60% invoice automation.
+          </>,
+          <>
+            Built responsive dashboards for service and admin
+            workflows.
+          </>,
+        ],
+        images: [],
+      },
+      {
+        company: 'Drishte',
+        timeframe: 'Jul 2020 – Feb 2022',
+        role: 'Full Stack Engineer',
+        achievements: [
+          <>
+            Built real-time dashboards and ML tools with React &
+            Django.
+          </>,
+          <>
+            Created facial recognition attendance system (Upasthiti).
+          </>,
+          <>Optimized edge-based ad platform using Jetson Nano.</>,
+        ],
+        images: [],
+      },
+      {
+        company: 'Drishte',
+        timeframe: 'Jan 2020 – Jun 2020',
+        role: 'Intern – Full Stack Engineer',
+        achievements: [
+          <>Built ad analytics dashboards using React and Django.</>,
+        ],
+        images: [],
+      },
+      {
+        company: 'GeeksforGeeks',
+        timeframe: 'May 2019 – Aug 2019',
+        role: 'Technical Content Intern',
+        achievements: [
+          <>Wrote 60+ articles on Python, JavaScript, and Django.</>,
+        ],
+        images: [],
+      },
+      {
+        company: 'Reliance Jio',
+        timeframe: 'May 2018 – Jul 2018',
+        role: 'Software Intern',
+        achievements: [
+          <>
+            Developed a React-Django portal for internal issue
+            tracking.
           </>,
         ],
         images: [],
@@ -143,71 +218,78 @@ const about = {
     ],
   },
   studies: {
-    display: true, // set to false to hide this section
-    title: "Studies",
+    display: true,
+    title: 'Education',
     institutions: [
       {
-        name: "University of Jakarta",
-        description: <>Studied software engineering.</>,
-      },
-      {
-        name: "Build the Future",
-        description: <>Studied online marketing and personal branding.</>,
+        name: 'Bennett University',
+        description: (
+          <>Bachelor of Technology in Computer Science (2016–2020).</>
+        ),
       },
     ],
   },
   technical: {
-    display: true, // set to false to hide this section
-    title: "Technical skills",
+    display: true,
+    title: 'Technical Skills',
     skills: [
       {
-        title: "Figma",
-        description: <>Able to prototype in Figma with Once UI with unnatural speed.</>,
-        // optional: leave the array empty if you don't want to display images
-        images: [
-          {
-            src: "/images/projects/project-01/cover-02.jpg",
-            alt: "Project image",
-            width: 16,
-            height: 9,
-          },
-          {
-            src: "/images/projects/project-01/cover-03.jpg",
-            alt: "Project image",
-            width: 16,
-            height: 9,
-          },
-        ],
+        title: 'Full Stack Development',
+        description: (
+          <>
+            Proficient in building scalable web apps using React.js,
+            Next.js, Django, Node.js, Java Spring Boot, and
+            TypeScript.
+          </>
+        ),
+        images: [],
       },
       {
-        title: "Next.js",
-        description: <>Building next gen apps with Next.js + Once UI + Supabase.</>,
-        // optional: leave the array empty if you don't want to display images
-        images: [
-          {
-            src: "/images/projects/project-01/cover-04.jpg",
-            alt: "Project image",
-            width: 16,
-            height: 9,
-          },
-        ],
+        title: 'DevOps & Cloud',
+        description: (
+          <>
+            Experienced with Docker, Kubernetes, Jenkins, AWS, and
+            CI/CD pipelines for deployment automation and monitoring.
+          </>
+        ),
+        images: [],
+      },
+      {
+        title: 'Databases & Messaging',
+        description: (
+          <>
+            Hands-on with PostgreSQL, Redis, Kafka, and Prisma ORM for
+            building efficient, event-driven systems.
+          </>
+        ),
+        images: [],
+      },
+      {
+        title: 'Testing & Tooling',
+        description: (
+          <>
+            Familiar with Jest, React Testing Library, Playwright,
+            Storybook, Git, and Agile methodology.
+          </>
+        ),
+        images: [],
       },
     ],
   },
 };
 
 const blog = {
-  path: "/blog",
-  label: "Blog",
-  title: "Writing about design and tech...",
+  path: '/blog',
+  label: 'Blog',
+  title: 'Writing about design and tech...',
   description: `Read what ${person.name} has been up to recently`,
   // Create new blog posts by adding a new .mdx file to app/blog/posts
   // All posts will be listed on the /blog route
 };
 
 const work = {
-  path: "/work",
-  label: "Work",
+  path: '/work',
+  label: 'Work',
   title: `Projects – ${person.name}`,
   description: `Design and dev projects by ${person.name}`,
   // Create new project pages by adding a new .mdx file to app/blog/posts
@@ -215,54 +297,54 @@ const work = {
 };
 
 const gallery = {
-  path: "/gallery",
-  label: "Gallery",
+  path: '/gallery',
+  label: 'Gallery',
   title: `Photo gallery – ${person.name}`,
   description: `A photo collection by ${person.name}`,
   // Images by https://lorant.one
   // These are placeholder images, replace with your own
   images: [
     {
-      src: "/images/gallery/horizontal-1.jpg",
-      alt: "image",
-      orientation: "horizontal",
+      src: '/images/gallery/horizontal-1.jpg',
+      alt: 'image',
+      orientation: 'horizontal',
     },
     {
-      src: "/images/gallery/horizontal-2.jpg",
-      alt: "image",
-      orientation: "horizontal",
+      src: '/images/gallery/horizontal-2.jpg',
+      alt: 'image',
+      orientation: 'horizontal',
     },
     {
-      src: "/images/gallery/horizontal-3.jpg",
-      alt: "image",
-      orientation: "horizontal",
+      src: '/images/gallery/horizontal-3.jpg',
+      alt: 'image',
+      orientation: 'horizontal',
     },
     {
-      src: "/images/gallery/horizontal-4.jpg",
-      alt: "image",
-      orientation: "horizontal",
+      src: '/images/gallery/horizontal-4.jpg',
+      alt: 'image',
+      orientation: 'horizontal',
     },
     {
-      src: "/images/gallery/vertical-1.jpg",
-      alt: "image",
-      orientation: "vertical",
+      src: '/images/gallery/vertical-1.jpg',
+      alt: 'image',
+      orientation: 'vertical',
     },
     {
-      src: "/images/gallery/vertical-2.jpg",
-      alt: "image",
-      orientation: "vertical",
+      src: '/images/gallery/vertical-2.jpg',
+      alt: 'image',
+      orientation: 'vertical',
     },
     {
-      src: "/images/gallery/vertical-3.jpg",
-      alt: "image",
-      orientation: "vertical",
+      src: '/images/gallery/vertical-3.jpg',
+      alt: 'image',
+      orientation: 'vertical',
     },
     {
-      src: "/images/gallery/vertical-4.jpg",
-      alt: "image",
-      orientation: "vertical",
+      src: '/images/gallery/vertical-4.jpg',
+      alt: 'image',
+      orientation: 'vertical',
     },
   ],
 };
 
-export { person, social, newsletter, home, about, blog, work, gallery };
+export { person, social, contact, home, about, blog, work, gallery };
