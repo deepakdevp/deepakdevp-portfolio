@@ -29,6 +29,7 @@
     "sass": "^1.86.3"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.1.4",
     "@commitlint/cli": "^19.6.0",
     "@commitlint/config-conventional": "^19.6.0",
     "@types/cookie": "^0.6.0",
