@@ -4,6 +4,7 @@
 This is a personal portfolio website for Deepak Dev Panwar, built with Next.js and the Once UI design system. The portfolio showcases work experience, projects, blog posts, and provides contact information.
 
 ## 🚀 Quick Start
+
 ```bash
 # Install dependencies
 pnpm install
@@ -17,8 +18,12 @@ pnpm build
 # Start production server
 pnpm start
 
-# Lint code
-pnpm lint
+# Development tools
+pnpm lint              # Run ESLint
+pnpm lint:fix          # Fix linting issues
+pnpm format            # Format code with Biome
+pnpm format:check      # Check formatting
+pnpm typecheck         # Run TypeScript checks
 ```
 
 ## 📁 Project Structure
@@ -188,15 +193,24 @@ Required for full functionality:
 
 ## 🛠️ Development Workflow
 
-### Code Quality
-- **Biome** for linting and formatting
-- **TypeScript** for type safety
-- **SCSS modules** for component styling
+### Code Quality Tools
+- **Biome** - Fast linting and formatting (replaces ESLint + Prettier)
+- **TypeScript** - Type safety and better developer experience
+- **Husky** - Git hooks for automated quality checks
+- **lint-staged** - Run checks only on changed files
+- **EditorConfig** - Consistent formatting across editors
+
+### Pre-commit Hooks
+Automatically runs on every commit:
+1. **Format** - Biome formats all changed files
+2. **Lint** - Biome lints JavaScript/TypeScript files 
+3. **Type Check** - TypeScript compiler validates types
 
 ### File Organization
-- Components are modular with co-located styles
-- Content separated from code in `resources/`
+- Components are modular with co-located SCSS styles
+- Content configuration separated in `resources/`
 - Static assets organized by type in `public/`
+- Git hooks configured in `.husky/`
 
 ## 📱 Features
 

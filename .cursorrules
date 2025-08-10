@@ -1,0 +1,281 @@
+# Cursor Rules for Deepak Dev Portfolio
+
+## Project Context
+This is a Next.js 15 portfolio website using the Once UI design system, TypeScript, and SCSS modules.
+
+## Technology Stack
+- Next.js 15.3.1 with App Router
+- React 19.0.0
+- TypeScript 5.8.3
+- Once UI design system (@once-ui-system/core)
+- SCSS modules for styling
+- MDX for content (blog posts and projects)
+- Biome for linting and formatting
+
+## Code Style & Formatting
+
+### General Preferences
+- Use TypeScript for all new files
+- Use functional components with hooks
+- Prefer arrow functions for components
+- Use double quotes for strings (Biome config)
+- 2-space indentation
+- 100 character line width
+- Use explicit return types for functions when beneficial
+
+### Import Organization
+- Group imports: React/Next.js, Once UI, local components, utilities, types
+- Use absolute imports with `@/` prefix for src directory
+- Import Once UI components destructured from `@once-ui-system/core`
+
+### Component Structure
+```tsx
+import React from 'react';
+import { ComponentName, Flex, Text } from '@once-ui-system/core';
+import { LocalComponent } from '@/components';
+import styles from './ComponentName.module.scss';
+
+interface ComponentProps {
+  // props definition
+}
+
+export const ComponentName: React.FC<ComponentProps> = ({ prop }) => {
+  return (
+    <Flex>
+      {/* component content */}
+    </Flex>
+  );
+};
+```
+
+## Once UI Design System Rules
+
+### Component Usage
+- Always use Once UI components over native HTML elements
+- Use `Flex`, `Column`, `Row` for layout instead of divs
+- Use `Text`, `Heading` for typography instead of p, h1-h6
+- Use `Button` component with proper variants and sizes
+- Use semantic layout: `as` prop for proper HTML semantics
+
+### Common Once UI Patterns
+- Layout: `<Flex fillWidth horizontal="center">` for centering
+- Spacing: Use Once UI spacing tokens (xs, s, m, l, xl, xxl)
+- Colors: Reference theme colors like `onBackground="neutral-weak"`
+- Responsive: Use `mobileDirection="column"` for mobile layouts
+- Effects: Use `RevealFx` for animations with appropriate delays
+
+### Styling Approach
+- Use SCSS modules for component-specific styles
+- Reference Once UI CSS variables: `var(--neutral-alpha-weak)`
+- Use theme-aware colors and spacing
+- Prefer Once UI props over custom CSS when possible
+
+## File Structure & Naming
+
+### Component Files
+- Components in `src/components/` with PascalCase names
+- Co-locate SCSS modules: `ComponentName.tsx` + `ComponentName.module.scss`
+- Export components from `src/components/index.ts`
+
+### Page Structure
+- Pages in `src/app/` following App Router conventions
+- Use `page.tsx` for route pages
+- Use `layout.tsx` for nested layouts
+- Dynamic routes with `[slug]` folders
+
+### Content Files
+- Blog posts: `src/app/blog/posts/post-name.mdx`
+- Projects: `src/app/work/projects/project-name.mdx`
+- Configuration: `src/resources/content.js` and `once-ui.config.js`
+
+## Content Management
+
+### Configuration Updates
+- Personal info in `src/resources/content.js` in the `person` object
+- UI settings in `src/resources/once-ui.config.js`
+- Always update both title and description for SEO
+- Use consistent naming patterns for routes and paths
+
+### MDX Content
+- Include proper frontmatter with title, publishedAt, summary, image
+- Use Once UI components within MDX content
+- Reference images with paths relative to `/public/images/`
+
+## Development Patterns
+
+### State Management
+- Use React hooks for local state
+- Use Context API for theme and global state (already implemented)
+- Avoid external state management unless necessary
+
+### Data Fetching
+- Use Server Components for static content
+- Use dynamic imports for client-only components
+- Leverage Next.js built-in optimizations
+
+### Performance
+- Use Next.js Image component for images
+- Implement proper SEO meta tags
+- Use static generation where possible
+- Optimize bundle size with dynamic imports
+
+## Code Quality & Pre-commit Setup
+
+### Automated Quality Checks
+The project uses Husky + lint-staged for automated quality checks on every commit:
+
+1. **Formatting** - Biome formats all changed files
+2. **Linting** - Biome lints JavaScript/TypeScript files
+3. **Type Checking** - TypeScript compiler validates all types
+
+### Pre-commit Hook Configuration
+Located in `.husky/pre-commit`:
+```bash
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+npx lint-staged
+```
+
+### lint-staged Configuration (package.json)
+```json
+"lint-staged": {
+  "*.{js,jsx,ts,tsx,mjs}": [
+    "biome format --write",
+    "biome lint --write",
+    "tsc --noEmit"
+  ],
+  "*.{css,scss,sass}": [
+    "biome format --write"
+  ],
+  "*.{json,md,mdx,yml,yaml}": [
+    "biome format --write"
+  ]
+}
+```
+
+### Development Scripts
+Always run these before committing manually:
+- `pnpm format` - Format all files with Biome
+- `pnpm lint:fix` - Fix linting issues
+- `pnpm typecheck` - Run TypeScript checks
+
+## API Routes
+
+### Authentication
+- Use cookie-based authentication (pattern already established)
+- Implement proper error handling
+- Return appropriate HTTP status codes
+- Use TypeScript for request/response types
+
+### Route Protection
+- Configure protected routes in `once-ui.config.js`
+- Use RouteGuard component for client-side protection
+- Implement server-side validation in API routes
+
+## Accessibility
+
+### Semantic HTML
+- Use appropriate `as` props on Once UI components
+- Include proper ARIA labels and roles
+- Ensure keyboard navigation works
+- Maintain color contrast ratios
+
+### Screen Reader Support
+- Use descriptive alt text for images
+- Include proper heading hierarchy
+- Use landmarks and regions appropriately
+
+## Error Handling
+
+### Component Error Boundaries
+- Implement error boundaries for critical components
+- Provide fallback UI for failed components
+- Log errors appropriately
+
+### API Error Handling
+- Return structured error responses
+- Handle edge cases gracefully
+- Provide meaningful error messages
+
+## Testing Considerations
+
+### Component Testing
+- Test component props and rendering
+- Test user interactions and state changes
+- Mock Once UI components if needed for unit tests
+- Test responsive behavior
+
+### Integration Testing
+- Test page routing and navigation
+- Test form submissions and API calls
+- Test authentication flows
+
+## Deployment & Build
+
+### Build Optimization
+- Ensure all TypeScript errors are resolved
+- Run Biome linting before commits
+- Test build output locally
+- Optimize images and assets
+
+### Environment Configuration
+- Use environment variables for sensitive data
+- Configure proper base URLs for different environments
+- Set up proper error tracking and analytics
+
+## Specific Project Patterns
+
+### Theme System
+- Use system theme detection (already configured)
+- Maintain theme consistency across components
+- Support both light and dark modes
+
+### Navigation
+- Use consistent navigation patterns
+- Implement proper active states
+- Support mobile navigation
+
+### Content Display
+- Use masonry layout for galleries (react-masonry-css)
+- Implement proper pagination for blog posts
+- Show loading states for dynamic content
+
+### Contact Forms
+- Validate form inputs properly
+- Implement proper error states
+- Provide success feedback
+
+## Common Anti-Patterns to Avoid
+
+- Don't use inline styles; prefer SCSS modules or Once UI props
+- Don't bypass Once UI theme system with hardcoded colors
+- Don't use `any` type in TypeScript; define proper interfaces
+- Don't mix different spacing systems; stick to Once UI tokens
+- Don't ignore responsive design; always consider mobile-first
+- Don't hardcode content; use the configuration files in `src/resources/`
+
+## When Making Changes
+
+1. Always check existing patterns in the codebase first
+2. Update relevant configuration files when adding new routes or content
+3. Maintain consistency with existing component structure
+4. Test changes on both desktop and mobile viewports
+5. Ensure accessibility standards are maintained
+6. Run Biome linting and fix any issues
+
+## Quick Reference
+
+### Most Used Once UI Components
+- Layout: `Flex`, `Column`, `Row`, `Grid`
+- Typography: `Text`, `Heading`
+- Interactive: `Button`, `Input`, `Badge`
+- Media: `Avatar`, `Image`
+- Effects: `RevealFx`, `Background`
+
+### Key Configuration Files
+- `src/resources/content.js` - Personal info and content
+- `src/resources/once-ui.config.js` - UI configuration and themes
+- `src/resources/custom.css` - Global custom styles
+- `src/components/index.ts` - Component exports
+
+This is a living document that should be updated as the project evolves.

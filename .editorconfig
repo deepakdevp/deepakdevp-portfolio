@@ -1,0 +1,61 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+# All files
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+max_line_length = 100
+
+# JavaScript/TypeScript files
+[*.{js,jsx,ts,tsx,mjs}]
+indent_size = 2
+quote_type = double
+
+# JSON files
+[*.json]
+indent_size = 2
+
+# CSS/SCSS files
+[*.{css,scss,sass}]
+indent_size = 2
+
+# HTML files
+[*.html]
+indent_size = 2
+
+# Markdown files
+[*.{md,mdx}]
+indent_size = 2
+trim_trailing_whitespace = false
+max_line_length = off
+
+# YAML files
+[*.{yml,yaml}]
+indent_size = 2
+
+# Package manager files
+[{package.json,package-lock.json,pnpm-lock.yaml}]
+indent_size = 2
+
+# Configuration files
+[*.config.{js,mjs,ts}]
+indent_size = 2
+
+# Biome configuration
+[biome.json]
+indent_size = 2
+
+# Next.js configuration
+[next.config.mjs]
+indent_size = 2
+
+# TypeScript configuration
+[tsconfig.json]
+indent_size = 2
