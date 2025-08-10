@@ -159,6 +159,63 @@ Always run these before committing manually:
 - `pnpm lint:fix` - Fix linting issues
 - `pnpm typecheck` - Run TypeScript checks
 
+## Commit Message Standards
+
+### Conventional Commits Format
+Follow the Conventional Commits specification for consistent, semantic commit messages:
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+### Commit Types (Industry Standard)
+- **feat** - New feature for the user
+- **fix** - Bug fix for the user
+- **docs** - Documentation changes
+- **style** - Code style changes (formatting, whitespace, etc.)
+- **refactor** - Code change that neither fixes bug nor adds feature
+- **perf** - Performance improvements
+- **test** - Adding/updating tests
+- **build** - Build system or dependency changes
+- **ci** - CI/CD configuration changes
+- **chore** - Maintenance tasks, tooling updates
+- **revert** - Reverting previous commits
+
+### Commit Rules (Enforced by commitlint)
+- Type must be lowercase
+- Header max 72 characters
+- Use imperative mood ("add" not "added")
+- No period at end of description
+- Body/footer max 100 characters per line
+- Reference issues in footer when applicable
+
+### Project-Specific Scopes
+- `components` - UI components
+- `pages` - Page-level changes  
+- `auth` - Authentication
+- `api` - API routes
+- `config` - Configuration
+- `styles` - Styling
+- `content` - Content updates
+
+### Good Commit Examples
+```bash
+feat(components): add ContactMe form validation
+fix(auth): resolve redirect loop on login
+docs: update README with deployment instructions
+style(components): improve button hover states
+refactor(api): extract user validation logic
+perf(images): optimize gallery image loading
+chore(deps): update Once UI to v1.2.4
+```
+
+### Commit Message Validation
+The project uses commitlint to automatically validate commit messages. Invalid commits will be rejected.
+
 ## API Routes
 
 ### Authentication

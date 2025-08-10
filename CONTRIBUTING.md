@@ -237,6 +237,72 @@ When reporting issues:
 4. **Commit with descriptive messages**
 5. **Submit pull request** with detailed description
 
+### Commit Message Guidelines
+
+This project follows the **Conventional Commits** specification for consistent, semantic commit messages.
+
+#### Format
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+#### Types
+
+- **feat** - A new feature for the user
+- **fix** - A bug fix for the user
+- **docs** - Documentation changes
+- **style** - Code style changes (formatting, missing semi colons, etc)
+- **refactor** - Code change that neither fixes a bug nor adds a feature
+- **perf** - Performance improvements
+- **test** - Adding missing tests or correcting existing tests
+- **build** - Changes affecting build system or external dependencies
+- **ci** - Changes to CI configuration files and scripts
+- **chore** - Other changes that don't modify src or test files
+- **revert** - Reverts a previous commit
+
+#### Rules
+
+- Use lowercase for type and scope
+- Keep header under 72 characters
+- Use imperative mood in description ("add" not "added")
+- Don't end description with a period
+- Include body for complex changes
+- Reference issues in footer
+
+#### Examples
+
+```bash
+# Feature
+feat(components): add dark mode toggle component
+
+# Bug fix
+fix(auth): resolve login redirect issue
+
+# Documentation
+docs: update installation instructions in README
+
+# Breaking change
+feat!: migrate to Next.js 15 App Router
+
+BREAKING CHANGE: Pages directory is no longer supported
+```
+
+#### Scopes (Optional)
+
+Common scopes for this project:
+- `components` - UI components
+- `pages` - Page-level changes
+- `auth` - Authentication related
+- `api` - API routes
+- `config` - Configuration files
+- `styles` - Styling changes
+- `content` - Content updates
+
 ### PR Checklist
 
 - [ ] Code follows existing patterns and conventions
@@ -244,6 +310,7 @@ When reporting issues:
 - [ ] Components use Once UI design system
 - [ ] Styles are responsive and theme-aware
 - [ ] Content updates are in configuration files
+- [ ] Commit messages follow conventional format
 - [ ] Pre-commit hooks pass (format, lint, typecheck)
 - [ ] Build succeeds without errors
 - [ ] Changes are tested locally
