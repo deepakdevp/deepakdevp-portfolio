@@ -1,27 +1,27 @@
-# **Magic Portfolio by Once UI**
+# **Deepak Dev Portfolio**
 
-View the [demo here](https://demo.magic-portfolio.com).
+A modern, responsive portfolio website showcasing my work as a Full Stack Engineer.
 
-![Magic Portfolio](https://demo.magic-portfolio.com/images/og/home.jpg)
+![Portfolio Screenshot](/public/images/og/home.jpg)
 
 
 # **Getting started**
 
-Magic Portfolio was built with [Once UI](https://once-ui.com) for [Next.js](https://nextjs.org). It requires Node.js v18.17+.
+This portfolio is built with [Next.js](https://nextjs.org) and modern React patterns. It requires Node.js v18.17+.
 
 **1. Clone the repository**
 ```
-git clone https://github.com/once-ui-system/magic-portfolio.git
+git clone https://github.com/deepakdevp/deepakdevp-portfolio.git
 ```
 
 **2. Install dependencies**
 ```
-npm install
+pnpm install
 ```
 
 **3. Run dev server**
 ```
-npm run dev
+pnpm dev
 ```
 
 **4. Edit config**
@@ -41,12 +41,13 @@ Add a new .mdx file to src/app/blog/posts or src/app/work/projects
 
 # **Documentation**
 
-Docs available at: [docs.once-ui.com](https://docs.once-ui.com/docs/magic-portfolio/quick-start)
+Full documentation is available in [CLAUDE.md](./CLAUDE.md)
 
 # **Features**
 
-## **Once UI**
-- All tokens, components & features of [Once UI](https://once-ui.com)
+## **Modern Stack**
+- Built with Next.js 15, React 19, and TypeScript
+- Responsive design with modern CSS techniques
 
 ## **SEO**
 - Automatic open-graph and X image generation with next/og
@@ -55,7 +56,7 @@ Docs available at: [docs.once-ui.com](https://docs.once-ui.com/docs/magic-portfo
 ## **Design**
 - Responsive layout optimized for all screen sizes
 - Timeless design without heavy animations and motion
-- Endless customization options through [data attributes](https://once-ui.com/docs/theming)
+- Clean, professional design focused on showcasing work
 
 ## **Content**
 - Render sections conditionally based on the content file
@@ -63,32 +64,28 @@ Docs available at: [docs.once-ui.com](https://docs.once-ui.com/docs/magic-portfo
 - Generate and display social links automatically
 - Set up password protection for URLs
 
-## **Localization**
-- A localized version of Magic Portfolio is available with the next-intl library
-- To use localization, switch to the 'i18n' branch
+## **Performance**
+- Optimized for speed and SEO
+- Static site generation for fast loading
 
-# **Authors**
+# **Author**
 
-Connect with us on Threads or LinkedIn.
+Deepak Dev Panwar - Full Stack Engineer
 
-Lorant Toth: [Threads](https://www.threads.net/@lorant.one), [LinkedIn](https://www.linkedin.com/in/tothlorant/)  
-Zsofia Komaromi: [Threads](https://www.threads.net/@zsofia_kom), [LinkedIn](https://www.linkedin.com/in/zsofiakomaromi/)
+- [LinkedIn](https://www.linkedin.com/in/deepak-dev-panwar-166187135/)
+- [GitHub](https://github.com/deepakdevp)
+- [Email](mailto:deepakdevp@gmail.com)
 
-Localization added by [François Hernandez](https://github.com/francoishernandez)
+# **Contact**
 
-# **Get involved**
+Feel free to reach out if you'd like to collaborate or have any questions about my work!
 
-- Join the [Design Engineers Club on Discord](https://discord.com/invite/5EyAQ4eNdS) and share your portfolio with us!
-- Report a [bug](https://github.com/once-ui-system/magic-portfolio/issues/new?labels=bug&template=bug_report.md).
+- Schedule a call: [cal.com/deepakdevp](https://cal.com/deepakdevp)
+- Email: [deepakdevp@gmail.com](mailto:deepakdevp@gmail.com)
 
 # **License**
 
-Distributed under the CC BY-NC 4.0 License.
-- Commercial usage is not allowed.
-- Attribution is required.
-- You can extend the license to commercial use by purchasing a [Once UI Pro](https://once-ui.com/pricing) license.
+This is a personal portfolio project. All rights reserved for personal content and projects.
 
-See `LICENSE.txt` for more information.
+The underlying framework components may have their own licenses - please check individual dependencies.
 
-# **Deploy with Vercel**
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fonce-ui-system%2Fmagic-portfolio&project-name=portfolio&repository-name=portfolio&redirect-url=https%3A%2F%2Fgithub.com%2Fonce-ui-system%2Fmagic-portfolio&demo-title=Magic%20Portfolio&demo-description=Showcase%20your%20designers%20or%20developer%20portfolio&demo-url=https%3A%2F%2Fdemo.magic-portfolio.com&demo-image=%2F%2Fraw.githubusercontent.com%2Fonce-ui-system%2Fmagic-portfolio%2Fmain%2Fpublic%2Fimages%2Fog%2Fhome.jpg)
