@@ -50,7 +50,7 @@
     "*.{css,scss,sass}": [
       "biome format --write"
     ],
-    "*.{json,md,mdx,yml,yaml}": [
+    "*.{json,md,yml,yaml}": [
       "biome format --write"
     ]
   }

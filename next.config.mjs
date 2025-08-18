@@ -13,6 +13,10 @@ const nextConfig = {
     compiler: "modern",
     silenceDeprecations: ["legacy-js-api"],
   },
+  eslint: {
+    // Skip ESLint during production builds (handled by Biome/CI)
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default withMDX(nextConfig);
