@@ -33,7 +33,7 @@ const social = [
   {
     name: 'LinkedIn',
     icon: 'linkedin',
-    link: 'https://www.linkedin.com/in/deepak-dev-panwar-166187135/',
+    link: 'https://www.linkedin.com/in/deepak-dev-166187135/',
   },
 
   {
@@ -89,7 +89,7 @@ const home = {
   },
   subline: (
     <>
-      I'm Deepak Dev, a FullStack Engineer at Medikabazaar , where I
+      I'm Deepak Dev, a Full Stack Engineer at Medikabazaar, where I
       craft intuitive
       <br /> user experiences. After hours, I build my own projects.
     </>
@@ -133,7 +133,7 @@ const about = {
     experiences: [
       {
         company: 'Medikabazaar',
-        timeframe: 'Apr 2024 – Present',
+        timeframe: 'Apr 2022 – Present',
         role: 'SDE 2 / Full Stack Engineer',
         achievements: [
           <>

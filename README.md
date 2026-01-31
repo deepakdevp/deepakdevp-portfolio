@@ -72,7 +72,7 @@ Full documentation is available in [CLAUDE.md](./CLAUDE.md)
 
 Deepak Dev Panwar - Full Stack Engineer
 
-- [LinkedIn](https://www.linkedin.com/in/deepak-dev-panwar-166187135/)
+- [LinkedIn](https://www.linkedin.com/in/deepak-dev-166187135/)
 - [GitHub](https://github.com/deepakdevp)
 - [Email](mailto:deepakdevp@gmail.com)
 
