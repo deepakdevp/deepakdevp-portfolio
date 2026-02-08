@@ -7,10 +7,10 @@ const person = {
     return `${this.firstName} ${this.lastName}`;
   },
   role: 'Full Stack Engineer',
-  avatar: '/images/avatar.jpg',
+  avatar: '/images/my_avatar.png',
   email: 'deepakdevp@gmail.com',
   location: 'Asia/Tokyo', // Expecting the IANA time zone identifier, e.g., 'Europe/Vienna'
-  languages: ['English', 'Hindi', 'Japanese'], // optional: Leave the array empty if you don't want to display languages
+  languages: ['English', 'Hindi', 'Japanese (N5 – actively learning)'], // optional: Leave the array empty if you don't want to display languages
 };
 const newsletter = {
   display: true,
@@ -33,7 +33,7 @@ const social = [
   {
     name: 'LinkedIn',
     icon: 'linkedin',
-    link: 'https://www.linkedin.com/in/deepak-dev-166187135/',
+    link: 'https://www.linkedin.com/in/deepak-dev-panwar-166187135/',
   },
 
   {
@@ -56,7 +56,7 @@ const contact = {
     {
       name: 'Schedule a Call',
       icon: 'calendar',
-      link: 'https://cal.com/deepakdevp', // Uses the existing calendar link
+      link: 'https://cal.com/deepakdevp',
     },
     {
       name: 'Email',
@@ -66,7 +66,7 @@ const contact = {
     {
       name: 'LinkedIn',
       icon: 'linkedin',
-      link: social.find((s) => s.name === 'LinkedIn').link,
+      link: 'https://www.linkedin.com/in/deepak-dev-panwar-166187135/',
     },
   ],
 };
@@ -89,9 +89,11 @@ const home = {
   },
   subline: (
     <>
-      I'm Deepak Dev, a Full Stack Engineer at Medikabazaar, where I
-      craft intuitive
-      <br /> user experiences. After hours, I build my own projects.
+      こんにちは！ I'm Deepak Dev, a Full Stack Engineer at Medikabazaar, crafting
+      intuitive user experiences.
+      <br />
+      Currently learning Japanese (JLPT N5) 🇯🇵 &amp; exploring Claude Code and agentic
+      coding workflows. After hours, I build my own projects.
     </>
   ),
 };
@@ -117,13 +119,18 @@ const about = {
     title: 'Introduction',
     description: (
       <>
-        Deepak Dev Panwar is a Full Stack Software Engineer with 5+
-        years of experience in building scalable web applications
-        using React, Next.js, Django, and Java Spring Boot. He
-        specializes in centralized authentication, CI/CD pipelines,
-        and performance optimization. Deepak has led cross-functional
-        teams and contributed to fintech, medical, and AI-based
-        solutions.
+        こんにちは！ Deepak Dev Panwar is a Full Stack Software Engineer with 5+
+        years of experience building scalable web applications using React,
+        Next.js, Django, and Java Spring Boot. He specialises in centralised
+        authentication, CI/CD pipelines, and performance optimisation. Deepak
+        has led cross-functional teams and contributed to fintech, medical, and
+        AI-based solutions.
+        <br /><br />
+        Outside work, Deepak is actively learning Japanese (targeting JLPT N5
+        🇯🇵) and deeply exploring Claude Code and agentic coding — building
+        AI-powered workflows with MCP servers, LangChain, and multi-agent
+        systems. He is preparing to relocate to Japan and contribute to
+        product-focused engineering teams there.
       </>
     ),
   },
@@ -137,79 +144,66 @@ const about = {
         role: 'SDE 2 / Full Stack Engineer',
         achievements: [
           <>
-            Built Seller Management Portal with React & Node.js,
-            reducing onboarding time by 90%.
+            Architected centralised User Access Management (UAM) system,
+            consolidating authentication for 8+ enterprise platforms with SSO
+            integration, unifying company-wide identity policies.
           </>,
           <>
-            Created centralized User Access Management system across 8
-            platforms.
+            Set up CI/CD pipelines using Jenkins with Kafka, New Relic, and
+            Docker on AWS, improving deployment reliability and observability.
           </>,
           <>
-            Led UI component library development with Storybook &
-            Chromatic.
+            Led 5-engineer team through architecture decisions, code reviews,
+            and mentoring on system design patterns.
           </>,
           <>
-            Implemented Jenkins, Kafka, Docker pipelines with
-            observability tools.
+            Delivered 60% automation of invoicing processes (Accounts
+            Receivable, Payable, Credit Notes) using React, Django, and Java
+            Spring Boot microservices.
           </>,
           <>
-            Managed a team of 5 engineers, ensuring timely and
-            high-quality delivery.
+            Built automated invoice processing leveraging OpenAI vision models,
+            eliminating 80% of manual data entry.
+          </>,
+          <>
+            Architected Medical Device Service Platform — 2 cross-platform
+            mobile apps (Ionic) + React/Django admin panel, achieving 90%
+            field operations adoption.
+          </>,
+          <>
+            Built &amp; published internal React component library on NPM
+            (Storybook + Chromatic), adopted by 50+ developers across 12 teams,
+            reducing dev time by 50%.
           </>,
         ],
         images: [],
       },
       {
-        company: 'Medikabazaar',
-        timeframe: 'Mar 2022 – Mar 2024',
-        role: 'SDE 1 / Full Stack Engineer',
-        achievements: [
-          <>
-            Developed Medical Device Service Platform with React,
-            Ionic, Django.
-          </>,
-          <>
-            Automated financial modules using React & Spring Boot with
-            60% invoice automation.
-          </>,
-          <>
-            Built responsive dashboards for service and admin
-            workflows.
-          </>,
-        ],
-        images: [],
-      },
-      {
-        company: 'Drishte',
+        company: 'DrishteAI',
         timeframe: 'Jul 2020 – Feb 2022',
-        role: 'Full Stack Engineer',
+        role: 'Software Engineer',
         achievements: [
           <>
-            Built real-time dashboards and ML tools with React &
-            Django.
+            Architected offline advertisement platform (similar to Google Ads)
+            with NVIDIA Jetson Nano edge devices and computer vision pipelines.
           </>,
           <>
-            Created facial recognition attendance system (Upasthiti).
+            Led 3-person team delivering real-time analytics dashboards,
+            annotation tools, and campaign portals for 10+ enterprise clients.
           </>,
-          <>Optimized edge-based ad platform using Jetson Nano.</>,
+          <>
+            Designed Upasthiti — facial recognition attendance system deployed
+            for 10+ clients using React, Django, and computer vision.
+          </>,
         ],
         images: [],
       },
       {
-        company: 'Drishte',
+        company: 'DrishteAI',
         timeframe: 'Jan 2020 – Jun 2020',
         role: 'Intern – Full Stack Engineer',
         achievements: [
           <>Built ad analytics dashboards using React and Django.</>,
-        ],
-        images: [],
-      },
-      {
-        company: 'GeeksforGeeks',
-        timeframe: 'May 2019 – Aug 2019',
-        role: 'Technical Content Intern',
-        achievements: [
-          <>Wrote 60+ articles on Python, JavaScript, and Django.</>,
         ],
         images: [],
       },
@@ -219,8 +213,8 @@ const about = {
         role: 'Software Intern',
         achievements: [
           <>
-            Developed a React-Django portal for internal issue
-            tracking.
+            Built a React-Django portal for internal network issue tracking,
+            improving incident management efficiency.
           </>,
         ],
         images: [],
@@ -234,7 +228,10 @@ const about = {
       {
         name: 'Bennett University',
         description: (
-          <>Bachelor of Technology in Computer Science (2016–2020).</>
+          <>
+            Bachelor of Technology in Computer Science (Specialisation in
+            AI/ML), 2016–2020.
+          </>
         ),
       },
     ],
@@ -247,9 +244,8 @@ const about = {
         title: 'Full Stack Development',
         description: (
           <>
-            Proficient in building scalable web apps using React.js,
-            Next.js, Django, Node.js, Java Spring Boot, and
-            TypeScript.
+            Proficient in React.js, Next.js, TypeScript, Django, Node.js, and
+            Java Spring Boot — building scalable, production-ready applications.
           </>
         ),
         images: [],
@@ -258,8 +254,8 @@ const about = {
         title: 'DevOps & Cloud',
         description: (
           <>
-            Experienced with Docker, Kubernetes, Jenkins, AWS, and
-            CI/CD pipelines for deployment automation and monitoring.
+            Experienced with Docker, Kubernetes, Jenkins, AWS (EC2, Lambda, RDS,
+            S3), and CI/CD pipelines for deployment automation and monitoring.
           </>
         ),
         images: [],
@@ -268,8 +264,19 @@ const about = {
         title: 'Databases & Messaging',
         description: (
           <>
-            Hands-on with PostgreSQL, Redis, Kafka, and Prisma ORM for
-            building efficient, event-driven systems.
+            Hands-on with PostgreSQL, MongoDB, Redis, Kafka, ElasticSearch, and
+            Prisma ORM for efficient, event-driven systems.
+          </>
+        ),
+        images: [],
+      },
+      {
+        title: 'AI & Agentic Coding',
+        description: (
+          <>
+            Actively building with Claude Code, LangChain, OpenAI APIs, RAG
+            pipelines, MCP servers, and multi-agent systems. Exploring the
+            frontier of AI-assisted engineering workflows.
           </>
         ),
         images: [],
@@ -278,8 +285,8 @@ const about = {
         title: 'Testing & Tooling',
         description: (
           <>
-            Familiar with Jest, React Testing Library, Playwright,
-            Storybook, Git, and Agile methodology.
+            Familiar with Jest, React Testing Library, Playwright, Storybook,
+            Mixpanel, Sentry, New Relic, and Agile/Scrum methodology.
           </>
         ),
         images: [],
@@ -291,7 +298,7 @@ const about = {
 const blog = {
   path: '/blog',
   label: 'Blog',
-  title: 'Writing about design and tech...',
+  title: 'Thoughts on tech, AI & Japanese learning',
   description: `Read what ${person.name} has been up to recently`,
   // Create new blog posts by adding a new .mdx file to app/blog/posts
   // All posts will be listed on the /blog route

@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 
 import {
   Heading,
@@ -36,8 +37,16 @@ export default function Home() {
           image: `${baseURL}${person.avatar}`,
         }}
       />
-      <Column fillWidth paddingY="24" gap="m">
-        <Column maxWidth="s">
+      {/* Hero Section — two-column layout */}
+      <Flex
+        fillWidth
+        paddingY="24"
+        gap="xl"
+        mobileDirection="column"
+        vertical="center"
+      >
+        {/* Left: text content */}
+        <Column flex={1} gap="m">
           {home.featured.display && (
             <RevealFx
               fillWidth
@@ -113,10 +122,32 @@ export default function Home() {
             </Button>
           </RevealFx>
         </Column>
-      </Column>
+
+        {/* Right: avatar photo */}
+        <RevealFx
+          translateY="8"
+          delay={0.3}
+          style={{ flex: '0 0 auto' }}
+        >
+          <Image
+            src={person.avatar}
+            alt={`${person.name} — ${person.role}`}
+            width={300}
+            height={380}
+            style={{
+              borderRadius: '1.5rem',
+              objectFit: 'cover',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+            }}
+            priority
+          />
+        </RevealFx>
+      </Flex>
+
       <RevealFx translateY="16" delay={0.6}>
         <Projects range={[1, 1]} />
       </RevealFx>
+
       {routes['/blog'] && (
         <Flex fillWidth gap="24" mobileDirection="column">
           <Flex flex={1} paddingLeft="l" paddingTop="24">

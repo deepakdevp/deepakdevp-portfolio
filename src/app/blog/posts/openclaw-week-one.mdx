@@ -1,0 +1,60 @@
+---
+title: "One Week with OpenClaw (formerly MoltBot): My Honest Take"
+publishedAt: "2026-02-08"
+summary: "I've spent the last week using OpenClaw — an AI assistant that lives on your machine and talks to you through WhatsApp, Discord, and more. Here's what actually happened."
+image: "/images/blog/openclaw-homepage.jpg"
+tag: "AI Tools"
+---
+
+So I came across **OpenClaw** (it used to be called MoltBot/Clawdbot before rebranding) about two weeks ago through a tweet. Someone said it helped them manage Claude Code sessions from their phone while commuting. That got my attention.
+
+![OpenClaw homepage — the AI that actually does things](/images/blog/openclaw-homepage.jpg)
+
+## What even is OpenClaw?
+
+The tagline is *"The AI that actually does things."* Sounds bold, right? But honestly — it kind of delivers. The idea is simple: instead of opening a browser or an app, your AI assistant just lives on your machine and you talk to it through messaging apps you already use. WhatsApp, Telegram, Discord, iMessage — whatever works for you.
+
+It's not a SaaS product. You install it locally with a one-liner:
+
+```bash
+curl -fsSL https://openclaw.ai/install.sh | bash
+```
+
+And then it's just... there. Running on your machine, connected to your calendar, your inbox, your files.
+
+## What I actually used it for this week
+
+I'll be real — I went in skeptical. But here's what happened over the last seven days:
+
+**Day 1–2:** I set it up and connected it to my Discord. The first thing I asked it to do was check my calendar and remind me about a standup. Worked instantly. Small thing, but it felt different because I didn't have to open anything.
+
+**Day 3:** I was working on a Django backend fix late at night. Asked it to review a diff I was about to commit. It caught a missing transaction rollback. Would I have caught it eventually? Probably. But at 11 PM, I was glad it did.
+
+**Day 4:** Used it for Japanese practice. I'm currently studying for JLPT N5 and I asked it to quiz me on hiragana. It just... did it. Right there in Discord. No setup, no third-party app, no subscription.
+
+**Day 5–6:** This is where it got interesting. I was working on a side project and asked it to scaffold a new Next.js component, run the dev server, and tell me if there were TypeScript errors. It did all of that — while I was in the kitchen making tea.
+
+**Day 7:** I pushed my portfolio changes using it as my git assistant. It reviewed the diff, wrote the commit message, and reminded me about a TODO I'd left in a comment six days earlier.
+
+## The honest verdict
+
+Is it magic? No. Is it useful? Genuinely, yes.
+
+The biggest shift is that your AI feels *present* rather than something you visit. It's the difference between having a conversation and opening a tool. When something's in your WhatsApp or Discord, you actually check it. You actually respond. That changes the feedback loop entirely.
+
+The memory system is also surprisingly good. It remembered that I prefer TypeScript strict mode, that I use pnpm, and that I'm learning Japanese. I didn't re-explain these things — it just knew because it was *there* the whole week.
+
+## What's next
+
+I'm planning to use it more for:
+- Daily Japanese N5 flashcard quizzes
+- Keeping track of what I build with Claude Code
+- Morning briefings before work (emails + calendar in 30 seconds)
+
+If you're a developer and you haven't tried it yet, honestly — give it a week. The setup is fast, it's open source, and it runs on your machine so your data stays yours.
+
+---
+
+*If you try it, let me know how it goes. I'm curious whether other people's experience matches mine.*
+
+*— Deepak*

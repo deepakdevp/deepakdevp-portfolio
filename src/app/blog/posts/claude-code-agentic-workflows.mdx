@@ -1,0 +1,65 @@
+---
+title: "Claude Code and Agentic Coding: What I've Learned So Far"
+publishedAt: "2026-02-05"
+summary: "I've been going deep on Claude Code and agentic coding workflows for the past month. Here's what I've discovered about how AI changes the actual act of programming."
+tag: "AI & Engineering"
+---
+
+A month ago I started taking Claude Code seriously. Not as a "write this function for me" tool, but as an actual collaborator in my engineering workflow. The shift in how I think about coding has been significant.
+
+## What is agentic coding, actually?
+
+"Agentic" means the AI isn't just answering questions — it's taking actions. It can read your files, run commands, browse the web, call APIs, and string multiple steps together to complete a goal.
+
+With Claude Code specifically:
+- It understands your entire codebase as context
+- It can run tests and fix failures autonomously
+- It reads error logs and iterates on solutions
+- It maintains state across a session
+
+This is different from autocomplete. It's closer to working with a junior developer who never gets tired and has read every Stack Overflow answer ever written.
+
+## What I've built with it
+
+**1. Portfolio updates (this one!)** — I described what I wanted (Japanese text, new blog, avatar photo, fixed LinkedIn link) and it made all the changes. Not perfect on the first pass, but iterating with it is fast.
+
+**2. Invoice automation** — At work, we have a process that involves extracting data from PDFs and entering it into our accounting system. I built a pipeline using Claude's vision API that extracts structured data directly from invoice images. Saved about 80% of manual entry time.
+
+**3. RAG pipeline for health data** — For my AI Health Assistant project, I used Claude Code to scaffold the entire LangChain + Pinecone integration. What would have taken me 2-3 days of reading docs took about 4 hours of iterative coding with it.
+
+## The things that surprised me
+
+**It's good at fixing its own mistakes.** When I tell it "that broke the build, here's the error," it fixes it. Sometimes on the second try, sometimes the third — but it gets there. This back-and-forth is where the real value is.
+
+**Context matters enormously.** The more you tell it upfront (tech stack, conventions, what *not* to do), the better the output. I've started writing `CLAUDE.md` files in my repos with project-specific rules. Game changer.
+
+**It changed how I approach problems.** I think in higher-level terms now. Instead of "how do I implement X," I think "what should X accomplish, and what tradeoffs matter?" Then we figure out the implementation together.
+
+## What it can't do (yet)
+
+- It doesn't know when to stop and ask for clarification. Sometimes it just... guesses and goes. You have to be explicit about when you want it to pause.
+- Long sessions can get confused. Context windows are large but not infinite.
+- It still makes silly mistakes sometimes. You can't fully turn off your brain.
+
+## My current workflow
+
+1. Start with a clear goal written out (not a one-liner)
+2. Let Claude explore the codebase and ask questions
+3. Review its plan before it starts coding
+4. Let it run, but check in at key points
+5. Review the diff like I would any PR
+
+It's collaborative, not delegated. The best results come when I'm engaged with what it's doing, not when I walk away and expect magic.
+
+## Where I'm going with this
+
+I'm planning to build more MCP (Model Context Protocol) servers — basically plugins that give the AI new capabilities. I have ideas for:
+- A Zerodha API integration (for my trading portfolio)
+- A Japanese vocabulary tracker
+- A daily standup summariser from my calendar
+
+The ecosystem is young but moving fast. If you're a developer and you haven't tried Claude Code properly yet — set aside a weekend. Don't just ask it to write functions. Give it a real problem and see how it handles it.
+
+The future of coding is collaborative, and it's happening now.
+
+*— Deepak*

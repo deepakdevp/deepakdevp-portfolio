@@ -34,6 +34,7 @@ export const ContactMe = () => {
         style={{
           position: 'relative',
           maxWidth: 'var(--responsive-width-xs)',
+          textAlign: 'center',
         }}
         wrap="balance"
         marginBottom="l"
@@ -41,7 +42,7 @@ export const ContactMe = () => {
       >
         {contact.description}
       </Text>
-      <Flex gap="16" horizontal="center">
+      <Flex gap="16" horizontal="center" wrap>
         {contact.options.map((option) => (
           <SmartLink
             key={option.name}
@@ -49,9 +50,13 @@ export const ContactMe = () => {
             rel="noopener noreferrer"
             target="_blank"
           >
-            <Button size="m" variant="primary">
-              <Icon name={option.icon} style={{ marginRight: 8 }} />
-              {option.name}
+            <Button
+              size="m"
+              variant="primary"
+              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+            >
+              <Icon name={option.icon} />
+              <span>{option.name}</span>
             </Button>
           </SmartLink>
         ))}
