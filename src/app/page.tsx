@@ -53,7 +53,6 @@ export default function Home() {
               horizontal="start"
               paddingTop="16"
               paddingBottom="32"
-              paddingLeft="12"
             >
               <Badge
                 background="brand-alpha-weak"
@@ -97,7 +96,6 @@ export default function Home() {
             paddingTop="12"
             delay={0.4}
             horizontal="start"
-            paddingLeft="12"
           >
             <Button
               id="about"
@@ -150,7 +148,7 @@ export default function Home() {
 
       {routes['/blog'] && (
         <Flex fillWidth gap="24" mobileDirection="column">
-          <Flex flex={1} paddingLeft="l" paddingTop="24">
+          <Flex flex={1} paddingX="l" paddingTop="24">
             <Heading
               as="h2"
               variant="display-strong-xs"
@@ -159,7 +157,7 @@ export default function Home() {
               Latest from the blog
             </Heading>
           </Flex>
-          <Flex flex={3} paddingX="20">
+          <Flex flex={3} paddingX="l">
             <Posts range={[1, 2]} columns="2" />
           </Flex>
         </Flex>

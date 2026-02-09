@@ -42,18 +42,25 @@ export const ContactMe = () => {
       >
         {contact.description}
       </Text>
-      <Flex gap="16" horizontal="center" wrap>
+      <Flex gap="16" horizontal="center" vertical="center" wrap>
         {contact.options.map((option) => (
           <SmartLink
             key={option.name}
             href={option.link}
             rel="noopener noreferrer"
             target="_blank"
+            style={{ display: 'flex', alignItems: 'center' }}
           >
             <Button
               size="m"
               variant="primary"
-              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+              style={{ 
+                display: 'inline-flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                gap: '8px',
+                height: '44px',
+              }}
             >
               <Icon name={option.icon} />
               <span>{option.name}</span>
