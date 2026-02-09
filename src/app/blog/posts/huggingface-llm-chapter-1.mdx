@@ -1,0 +1,150 @@
+---
+title: "Getting Started with LLMs: HuggingFace Course Chapter 1"
+publishedAt: "2025-11-15"
+summary: "Diving into the HuggingFace NLP course to understand how transformer models actually work. Chapter 1 covers the fundamentals — and already I'm seeing parallels to problems at work."
+tag: "LLM & AI"
+---
+
+# The Transformer Architecture Demystified
+
+I've been using GPT-4, Claude, and other LLMs for months now through APIs, treating them like magic boxes. You send text in, get text out. But I realized I had no idea what was actually happening inside.
+
+So I started the [HuggingFace NLP Course](https://huggingface.co/learn/nlp-course/chapter1/1) — Chapter 1 is all about understanding transformer models at a conceptual level. Not just "how to use them" but "how do they work."
+
+Turns out, it's fascinating.
+
+## What is a Transformer, Really?
+
+The core insight from Chapter 1: **transformers are sequence-to-sequence models that use attention mechanisms** to understand context.
+
+Before transformers (pre-2017), we had RNNs and LSTMs that processed text sequentially — word by word, left to right. This was slow and struggled with long-range dependencies. If a pronoun at the end of a paragraph referred to a noun at the beginning, the model would forget.
+
+Transformers changed everything by introducing **self-attention**. Instead of processing sequentially, the model looks at *all* words in the input simultaneously and decides which words are most relevant to each other.
+
+Example sentence: "The cat sat on the mat because it was tired."
+
+When the model processes "it," self-attention helps it figure out that "it" refers to "cat," not "mat." It does this by computing attention scores between every word pair.
+
+## The Architecture Breakdown
+
+HuggingFace breaks transformers into three types:
+
+1. **Encoder-only models** (like BERT)  
+   - Good at understanding text  
+   - Use cases: classification, named entity recognition, sentiment analysis  
+   - They create rich representations of input text
+
+2. **Decoder-only models** (like GPT)  
+   - Good at generating text  
+   - Use cases: text generation, chatbots, code completion  
+   - They predict the next token based on previous context
+
+3. **Encoder-decoder models** (like T5, BART)  
+   - Good at transformations  
+   - Use cases: translation, summarization, question answering  
+   - They encode input, then decode to output
+
+At work, we've been debating whether to use BERT or GPT-style models for a document classification pipeline. Now I understand why: BERT is better suited for understanding and categorizing, while GPT is overkill for classification but great if you need to generate summaries afterward.
+
+## The Pipeline API: A Great Starting Point
+
+Chapter 1 introduced the `pipeline` API, which is basically a one-liner to use pre-trained models:
+
+```python
+from transformers import pipeline
+
+classifier = pipeline("sentiment-analysis")
+result = classifier("I love this product!")
+# Output: [{'label': 'POSITIVE', 'score': 0.9998}]
+```
+
+I tested this on some customer feedback from our internal support system. We have hundreds of messages per week and manually categorizing them is tedious. Using the sentiment pipeline, I classified 500 messages in under a minute. Accuracy wasn't perfect (maybe 85%?), but good enough for a first pass.
+
+The cool part: I didn't train anything. I just used a pre-trained model (`distilbert-base-uncased-finetuned-sst-2-english`). This is the magic of transfer learning.
+
+## Transfer Learning: The Real Breakthrough
+
+The key concept that clicked for me: **most LLM applications don't require training from scratch**.
+
+Models like BERT, GPT, and T5 are pre-trained on massive text corpora (Wikipedia, books, web crawls). They've already learned:
+- Grammar and syntax
+- Common sense facts
+- Semantic relationships
+
+You can use them as-is, or fine-tune them on a smaller, task-specific dataset. This is way cheaper and faster than training from zero.
+
+At work, we were considering building a custom NER (named entity recognition) model for extracting product names from user reviews. But after this chapter, I realized we can probably just fine-tune a BERT model on 500-1000 labeled examples rather than collecting 100k+ examples for a from-scratch model.
+
+## Tokenization: Not as Simple as It Seems
+
+One thing that surprised me: **tokenization is language model-specific**.
+
+When you pass text to a model, it doesn't process whole words. It breaks them into **tokens** — subword units. The model "understands" tokens, not characters or words.
+
+Example with GPT-2 tokenizer:
+- "Hello world" → `["Hello", " world"]` (2 tokens)
+- "HuggingFace" → `["Hu", "gging", "Face"]` (3 tokens)
+
+This matters because:
+1. Different models have different tokenizers (BERT's is different from GPT's)
+2. Token limits are hard limits (e.g., GPT-4's 8k context window is 8k *tokens*, not words)
+3. Rare words get split into more tokens, making them "harder" for the model
+
+I'll dive deeper into tokenization in Chapter 2, but this already changes how I think about prompt engineering. If I use uncommon words, the model has to work harder to understand them.
+
+## My Workspace Setup
+
+I'm using Claude Code (the AI coding assistant) to help me run through examples and save notes. Every time I finish a section, I ask Claude to summarize the key points and save them to Notion. It's like having a study buddy who never gets tired.
+
+My setup:
+- VS Code with Python 3.11
+- `transformers` library installed via pip
+- Jupyter notebooks for experimentation
+- Claude Code in the terminal for quick questions
+
+When I got stuck on understanding attention heads (Chapter 1 mentions them briefly), I asked Claude Code to explain with an analogy. It compared attention heads to different "perspectives" — like having multiple reviewers read the same document, each focusing on different aspects (grammar, tone, factual accuracy). That clicked immediately.
+
+## Real-World Experiment: Workplace Document Classification
+
+I wanted to test what I learned, so I grabbed 50 random internal documents (meeting notes, project specs, support tickets) and tried classifying them using HuggingFace's zero-shot classification pipeline:
+
+```python
+from transformers import pipeline
+
+classifier = pipeline("zero-shot-classification")
+candidate_labels = ["technical", "business", "support", "planning"]
+
+for doc in documents:
+    result = classifier(doc, candidate_labels)
+    print(result['labels'][0])  # Top prediction
+```
+
+Results:
+- Accuracy: ~78% (I manually checked)
+- Speed: 50 docs in 30 seconds
+- Mistakes: Mostly on ambiguous documents (e.g., a planning doc that was very technical)
+
+This was mind-blowing. I didn't train anything. I didn't label data. I just described the categories in plain English and the model figured it out.
+
+Zero-shot learning is witchcraft.
+
+## Key Takeaways from Chapter 1
+
+1. **Transformers use self-attention** to understand context in both directions (not just left-to-right like RNNs)
+2. **Transfer learning is the default** — you rarely train from scratch
+3. **Encoder vs. Decoder vs. Encoder-Decoder** matters for choosing the right model
+4. **The `pipeline` API is incredibly powerful** for getting started fast
+5. **Tokenization is model-specific** and impacts how you think about text
+
+## What's Next
+
+Chapter 2 is all about tokenization in depth. I want to understand:
+- How byte-pair encoding works
+- Why different tokenizers exist
+- How to build a custom tokenizer (if needed)
+
+I'm also planning to fine-tune a model for our workplace use case — classifying customer feedback into actionable categories. That'll be Chapter 3, so I'll report back.
+
+If you're also going through the HuggingFace course, let me know! Would love to compare notes.
+
+*— Deepak*

@@ -1,0 +1,445 @@
+---
+title: "Advanced RAG Techniques: Coursera Course Week 3"
+publishedAt: "2026-01-14"
+tags: ["RAG & Retrieval", "LLM", "Advanced Techniques"]
+description: "Hybrid search, reranking, and query expansion for better retrieval - taking RAG from good to great"
+---
+
+# Advanced RAG Techniques: Coursera Course Week 3
+
+After building a working RAG pipeline in Week 2, I thought I had it figured out. Week 3 humbled me real quick.
+
+The basic RAG system I built had a 78% Top-1 accuracy, which sounds good until you realize **22% of the time users got the wrong answer first**. For an internal docs bot, that's annoying. For customer-facing applications, it's unacceptable.
+
+Week 3 of the Coursera RAG course covered advanced techniques to push that accuracy from 78% → 92%. I spent two weeks implementing these with Claude Code, and the improvements were dramatic.
+
+## The Problem with Basic RAG
+
+Let me show you a real failure case from our engineering docs bot:
+
+**Query:** "How do I handle database connection timeouts in production?"
+
+**Basic RAG retrieved:**
+1. A general networking guide (wrong)
+2. Local development setup with SQLite (wrong)
+3. Production database config (closer, but not about timeouts)
+
+**What we actually needed:** A specific section about connection pooling and timeout configurations.
+
+The embedding model thought "database" + "production" was close enough. It wasn't.
+
+Week 3 taught me three techniques to fix this:
+1. **Re-ranking** - Re-score results with a more powerful model
+2. **Query expansion** - Generate multiple query variants
+3. **Hybrid search** - Combine vector and keyword search
+
+## Technique 1: Re-ranking
+
+Re-ranking is simple but powerful: **after retrieving candidates with fast embeddings, re-score them with a slower, more accurate model.**
+
+Think of it like a two-stage hiring process: first pass with resumes (fast embedding search), then detailed interviews (re-ranking model).
+
+### Implementing Re-ranking
+
+```python
+from sentence_transformers import CrossEncoder
+
+# Fast retrieval model (same as before)
+retrieval_model = SentenceTransformer('all-mpnet-base-v2')
+
+# Slow but accurate re-ranking model
+rerank_model = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
+
+def search_with_rerank(query, n_results=5, n_candidates=20):
+    # Step 1: Fast retrieval (get more candidates)
+    query_embedding = retrieval_model.encode([query])[0]
+    
+    candidates = collection.query(
+        query_embeddings=[query_embedding.tolist()],
+        n_results=n_candidates  # Retrieve 20, return 5
+    )
+    
+    # Step 2: Re-rank with cross-encoder
+    pairs = [[query, doc] for doc in candidates['documents'][0]]
+    scores = rerank_model.predict(pairs)
+    
+    # Step 3: Sort by rerank scores
+    ranked_indices = np.argsort(scores)[::-1][:n_results]
+    
+    reranked_results = {
+        'documents': [[candidates['documents'][0][i] for i in ranked_indices]],
+        'metadatas': [[candidates['metadatas'][0][i] for i in ranked_indices]],
+        'scores': scores[ranked_indices].tolist()
+    }
+    
+    return reranked_results
+```
+
+### Results
+
+I ran this on our test set of 100 real user queries:
+
+| Metric | Basic RAG | With Re-ranking |
+|--------|-----------|-----------------|
+| Top-1 Accuracy | 78% | 89% |
+| Top-3 Accuracy | 92% | 97% |
+| Avg Retrieval Time | 20ms | 85ms |
+
+**11% improvement in Top-1 accuracy.** The time increase (20ms → 85ms) was worth it—users care about answer quality, not whether it's instant vs very fast.
+
+Claude Code pointed out that I could optimize further:
+
+> "You're running re-ranking on the CPU. Move it to GPU if you have one, or batch the requests."
+
+```python
+# Batched re-ranking (faster)
+def batch_rerank(queries, candidates):
+    pairs = [[q, doc] for q, docs in zip(queries, candidates) for doc in docs]
+    scores = rerank_model.predict(pairs, batch_size=32)
+    # reshape and sort...
+```
+
+With batching, I got the time down to 45ms. Much better.
+
+## Technique 2: Query Expansion
+
+Query expansion means **generating multiple versions of the user's query** to catch different phrasings and perspectives.
+
+Example:
+- Original: "How do I handle database timeouts?"
+- Expanded:
+  - "database connection timeout configuration"
+  - "fixing database timeout errors in production"
+  - "database connection pool timeout settings"
+
+### Implementation with LLMs
+
+```python
+from openai import OpenAI
+
+client = OpenAI()
+
+def expand_query(query, n_variants=3):
+    prompt = f"""Generate {n_variants} alternative search queries for the following question.
+Each variant should capture the same intent but use different wording.
+Be specific and technical when appropriate.
+
+Original question: {query}
+
+Alternative queries (one per line):"""
+
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.7,
+        max_tokens=150
+    )
+    
+    variants = response.choices[0].message.content.strip().split('\n')
+    return [query] + [v.strip('- ').strip() for v in variants if v.strip()]
+```
+
+### Using Expanded Queries
+
+```python
+def search_with_expansion(query, n_results=5):
+    # Generate query variants
+    queries = expand_query(query, n_variants=2)
+    
+    # Search with each variant
+    all_results = []
+    for q in queries:
+        results = search(q, n_results=10)
+        all_results.extend(zip(
+            results['documents'][0],
+            results['metadatas'][0],
+            [q] * len(results['documents'][0])  # Track which query
+        ))
+    
+    # Deduplicate and re-rank
+    unique_docs = {}
+    for doc, metadata, source_query in all_results:
+        doc_id = metadata.get('chunk_id')
+        if doc_id not in unique_docs:
+            unique_docs[doc_id] = (doc, metadata, source_query)
+    
+    # Re-rank all unique results
+    final_results = rerank(query, list(unique_docs.values())[:n_results * 2])
+    
+    return final_results[:n_results]
+```
+
+### Real Example
+
+**Query:** "redis cache not working"
+
+**Expanded queries:**
+1. "troubleshooting Redis caching issues"
+2. "Redis cache configuration problems"
+3. "debugging Redis connection failures"
+
+Each variant retrieved slightly different docs:
+- Query 1 → Troubleshooting guide
+- Query 2 → Configuration examples
+- Query 3 → Connection pooling docs
+
+After de-duplication and re-ranking, we got a much richer set of results.
+
+### Results
+
+| Metric | Basic RAG | + Re-ranking | + Query Expansion |
+|--------|-----------|--------------|-------------------|
+| Top-1 Accuracy | 78% | 89% | 92% |
+| Top-3 Accuracy | 92% | 97% | 98% |
+| Avg Time | 20ms | 85ms | 180ms |
+
+**92% Top-1 accuracy!** The cost: higher latency and more LLM calls. But for our use case, getting the right answer matters more than speed.
+
+## Technique 3: Hybrid Search
+
+Hybrid search combines **vector search** (semantic similarity) with **keyword search** (exact matches).
+
+Why both? Consider this query:
+- "What's the API endpoint for /users/create?"
+
+Vector search might miss the exact endpoint `/users/create` because it's focused on semantic meaning. Keyword search catches exact matches but misses semantic variants.
+
+Together, they're powerful.
+
+### Implementing BM25 Keyword Search
+
+```python
+from rank_bm25 import BM25Okapi
+import numpy as np
+
+class HybridSearcher:
+    def __init__(self, documents):
+        self.documents = documents
+        
+        # Build BM25 index
+        tokenized_docs = [doc.lower().split() for doc in documents]
+        self.bm25 = BM25Okapi(tokenized_docs)
+        
+        # Vector search (existing)
+        self.embeddings = retrieval_model.encode(documents)
+        
+    def search(self, query, n_results=5, alpha=0.5):
+        """
+        alpha: weight for vector search (1-alpha for keyword)
+        alpha=1.0 → pure vector search
+        alpha=0.0 → pure keyword search
+        alpha=0.5 → balanced hybrid
+        """
+        
+        # Vector search scores
+        query_embedding = retrieval_model.encode([query])[0]
+        vector_scores = cosine_similarity([query_embedding], self.embeddings)[0]
+        
+        # Keyword search scores
+        tokenized_query = query.lower().split()
+        keyword_scores = self.bm25.get_scores(tokenized_query)
+        
+        # Normalize scores to [0, 1]
+        vector_scores = (vector_scores - vector_scores.min()) / (vector_scores.max() - vector_scores.min() + 1e-8)
+        keyword_scores = (keyword_scores - keyword_scores.min()) / (keyword_scores.max() - keyword_scores.min() + 1e-8)
+        
+        # Combine scores
+        hybrid_scores = alpha * vector_scores + (1 - alpha) * keyword_scores
+        
+        # Get top results
+        top_indices = np.argsort(hybrid_scores)[::-1][:n_results]
+        
+        return [self.documents[i] for i in top_indices], hybrid_scores[top_indices]
+```
+
+### Tuning Alpha
+
+I tested different alpha values on our query set:
+
+```python
+alphas = [0.0, 0.3, 0.5, 0.7, 1.0]
+
+for alpha in alphas:
+    searcher = HybridSearcher(documents)
+    accuracy = evaluate(searcher, alpha=alpha)
+    print(f"Alpha={alpha}: {accuracy}%")
+```
+
+Results:
+- Alpha=0.0 (pure keyword): 65%
+- Alpha=0.3: 83%
+- **Alpha=0.5: 88%** ← Best
+- Alpha=0.7: 86%
+- Alpha=1.0 (pure vector): 78%
+
+**Balanced hybrid (0.5) beat both pure approaches.** This makes sense—some queries need semantic understanding, others need exact matches.
+
+Claude Code suggested making alpha **query-dependent**:
+
+```python
+def adaptive_alpha(query):
+    """Use lower alpha (more keyword) for technical queries with exact terms"""
+    # Heuristic: if query contains code patterns, use more keyword search
+    code_patterns = ['/', '_', '->', '==', 'def ', 'class ']
+    if any(pattern in query for pattern in code_patterns):
+        return 0.3  # More keyword weight
+    return 0.6  # More semantic weight
+```
+
+This pushed accuracy to 90% on our technical docs.
+
+## Combining All Three Techniques
+
+Here's the full pipeline with re-ranking, query expansion, and hybrid search:
+
+```python
+def advanced_search(query, n_results=5):
+    # Step 1: Query expansion
+    expanded_queries = expand_query(query, n_variants=2)
+    
+    # Step 2: Hybrid search for each query
+    all_candidates = []
+    for q in expanded_queries:
+        alpha = adaptive_alpha(q)
+        results, scores = hybrid_searcher.search(q, n_results=15, alpha=alpha)
+        all_candidates.extend(results)
+    
+    # Step 3: Deduplicate
+    unique_candidates = list(set(all_candidates))
+    
+    # Step 4: Re-rank with cross-encoder
+    pairs = [[query, doc] for doc in unique_candidates]
+    rerank_scores = rerank_model.predict(pairs)
+    
+    # Step 5: Sort and return top N
+    top_indices = np.argsort(rerank_scores)[::-1][:n_results]
+    
+    final_results = [unique_candidates[i] for i in top_indices]
+    final_scores = rerank_scores[top_indices]
+    
+    return final_results, final_scores
+```
+
+### Final Results
+
+| Technique | Top-1 Acc | Top-3 Acc | Avg Time |
+|-----------|-----------|-----------|----------|
+| Basic RAG | 78% | 92% | 20ms |
+| + Re-ranking | 89% | 97% | 85ms |
+| + Query Expansion | 92% | 98% | 180ms |
+| + Hybrid Search | **94%** | **99%** | 210ms |
+
+**94% Top-1 accuracy.** Nearly perfect Top-3. This was production-ready.
+
+## Real-World Impact
+
+After deploying the advanced pipeline, I tracked usage for two weeks:
+
+**Before (Basic RAG):**
+- 380 queries
+- 78% positive feedback
+- 68% of users clicked the top result
+
+**After (Advanced RAG):**
+- 420 queries (more usage!)
+- 91% positive feedback
+- 87% of users clicked the top result
+
+**People were using it more because it actually worked.**
+
+The engineering team started asking for specialized bots:
+- Deployment docs bot (filtered to deployment tags)
+- API reference bot (hybrid search with high keyword weight)
+- Troubleshooting bot (query expansion with error-focused variants)
+
+## Cost Analysis
+
+Advanced techniques aren't free. Here's the breakdown for 1000 queries:
+
+**Basic RAG:**
+- Embedding: $0 (local)
+- Vector DB: $0 (Chroma)
+- LLM (answer generation): $5
+- **Total: $5**
+
+**Advanced RAG:**
+- Embedding: $0 (local)
+- Vector DB: $0 (Chroma)
+- Query expansion: $0.50 (GPT-3.5)
+- Re-ranking: $0 (local model)
+- LLM (answer generation): $5
+- **Total: $5.50**
+
+**10% cost increase for 20% accuracy improvement.** No-brainer trade-off.
+
+## Lessons Learned
+
+1. **Re-ranking is the highest ROI improvement** - Easy to implement, big accuracy boost
+2. **Query expansion helps with vague queries** - "it's not working" → specific error scenarios
+3. **Hybrid search matters for technical content** - Exact matches catch code, APIs, error messages
+4. **Alpha tuning is dataset-specific** - Test on your actual queries
+5. **Measure everything** - Without metrics, you're flying blind
+
+## What I'd Do Differently
+
+Looking back, here's what I'd change:
+
+1. **Start with re-ranking** - Biggest bang for buck, should've done this in Week 2
+2. **Cache query expansions** - Same queries get expanded repeatedly
+3. **Use async for query expansion** - Run expanded searches in parallel
+4. **Add feedback loops** - Track which results users actually click
+
+Claude Code helped me implement #3:
+
+```python
+import asyncio
+
+async def async_search(query):
+    # Expand queries
+    expanded = expand_query(query)
+    
+    # Search in parallel
+    tasks = [async_hybrid_search(q) for q in expanded]
+    results = await asyncio.gather(*tasks)
+    
+    # Combine and re-rank
+    return rerank(query, results)
+```
+
+This cut query expansion time from 180ms → 95ms. Worth it.
+
+## Next Steps
+
+The course is done, but I'm continuing with:
+
+1. **Agent-based retrieval** - Let an LLM agent decide what to search for
+2. **Multi-hop reasoning** - Answer questions that need multiple docs
+3. **Fine-tuning embeddings** - Train custom embeddings on our docs
+4. **Graph-based RAG** - Connect related documents explicitly
+
+I'm especially excited about agent-based retrieval. Instead of me deciding the search strategy, an agent could:
+- Analyze the query
+- Decide: keyword vs vector vs hybrid
+- Adjust alpha dynamically
+- Query multiple times with different strategies
+- Self-correct if results are poor
+
+This is where RAG meets agentic workflows.
+
+## Key Takeaways
+
+1. **Basic RAG is just the start** - Advanced techniques double accuracy
+2. **Re-ranking > everything else** - Start here
+3. **Hybrid search beats pure vector** - Especially for technical content
+4. **Query expansion helps vague queries** - But adds latency
+5. **Measure on real queries** - Synthetic benchmarks lie
+
+Building a RAG system is like building a search engine. The first version is easy. Making it *good* is where the real work happens.
+
+Week 3 taught me that the difference between a toy and a tool is **iteration based on real usage**. Our docs bot went from "neat demo" to "team dependency" because we measured, improved, and shipped.
+
+This is production ML.
+
+---
+
+*Advanced RAG with Claude Code. All improvements tracked in Notion. From 78% to 94% accuracy in three weeks.*

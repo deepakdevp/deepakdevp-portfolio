@@ -1,0 +1,376 @@
+---
+title: "Introduction to RAG: Coursera Course Week 1"
+publishedAt: "2025-12-12"
+summary: "Started the Retrieval-Augmented Generation course on Coursera. Week 1 covers the fundamentals: why RAG exists, how it works, and why it's better than fine-tuning for certain use cases."
+tag: "RAG & Retrieval"
+---
+
+# Why RAG? Understanding the Problem It Solves
+
+I've been using LLMs for months — GPT-4, Claude, open-source models. They're incredible, but they have a fundamental limitation: **they only know what they were trained on**.
+
+If you ask GPT-4 about your company's internal documentation, your private codebase, or anything that happened after its training cutoff, it has no idea. It'll either say "I don't know" or (worse) hallucinate an answer.
+
+**Retrieval-Augmented Generation (RAG)** solves this by giving LLMs access to external knowledge in real-time.
+
+Week 1 of the Coursera RAG course explained the core concepts, and it's already changing how I think about building AI applications.
+
+## The Core Idea of RAG
+
+RAG is deceptively simple:
+
+1. **Retrieval**: When a user asks a question, search a knowledge base for relevant documents
+2. **Augmentation**: Add those documents to the prompt as context
+3. **Generation**: Let the LLM generate an answer based on the retrieved context
+
+Example flow:
+
+**User question**: "What's our refund policy?"
+
+**System retrieves**:
+```
+Our refund policy is as follows: Customers can request a full refund within 30 days of purchase. 
+After 30 days, we offer store credit only. Custom orders are non-refundable.
+```
+
+**Prompt sent to LLM**:
+```
+Context: Our refund policy is as follows: Customers can request a full refund within 30 days...
+
+Question: What's our refund policy?
+
+Answer based on the context above:
+```
+
+**LLM response**: "You can get a full refund within 30 days of purchase. After that, only store credit is available. Custom orders cannot be refunded."
+
+The LLM didn't "know" this beforehand. It was given the knowledge at inference time.
+
+## RAG vs. Fine-Tuning
+
+One of the first concepts in Week 1: **when to use RAG vs. fine-tuning**.
+
+### Fine-Tuning
+- **What it does**: Updates model weights to teach it new knowledge or behavior
+- **Best for**: Teaching style, format, domain-specific reasoning
+- **Example**: Teaching a model to respond like a customer service agent
+
+### RAG
+- **What it does**: Provides external knowledge at inference time
+- **Best for**: Factual knowledge that changes frequently
+- **Example**: Answering questions about current inventory, recent news, internal docs
+
+### Why not just fine-tune?
+
+Fine-tuning bakes knowledge into model weights. This has problems:
+
+1. **Staleness**: If your data changes, you need to re-train
+2. **Hallucination**: The model might confidently state outdated facts
+3. **Cost**: Fine-tuning is expensive and slow
+4. **Debugging**: Hard to know *why* the model said something (is it from training data or made up?)
+
+RAG keeps knowledge separate. You can update your knowledge base instantly without touching the model.
+
+### When to combine both
+
+At work, we're building a customer support chatbot. We're using:
+- **Fine-tuning**: To teach the model our company's tone and response style
+- **RAG**: To give it access to product documentation and FAQs
+
+Best of both worlds.
+
+## The RAG Architecture
+
+Week 1 broke down the standard RAG pipeline:
+
+```
+User Query
+    ↓
+[Query Embedding] ← Embed the query as a vector
+    ↓
+[Vector Database] ← Search for similar document chunks
+    ↓
+[Top K Results] ← Retrieve the most relevant chunks
+    ↓
+[Prompt Construction] ← Add chunks to the prompt as context
+    ↓
+[LLM Generation] ← Generate an answer
+    ↓
+Response to User
+```
+
+Each step has important design choices.
+
+## Step 1: Building the Knowledge Base
+
+Before you can retrieve anything, you need a searchable knowledge base.
+
+**My experiment**: I grabbed our internal wiki (about 200 pages of product docs, API references, and troubleshooting guides).
+
+Process:
+1. **Extract text** from Markdown files
+2. **Chunk documents** into ~500-token pieces (using the strategies I learned from the Agenta.ai article)
+3. **Embed each chunk** using a sentence embedding model
+4. **Store embeddings** in a vector database
+
+### Embedding Models
+
+I tested two models:
+
+**`all-MiniLM-L6-v2`** (open-source, 384 dimensions):
+- Fast
+- Good for general text
+- Smaller model size
+
+**`text-embedding-ada-002`** (OpenAI, 1536 dimensions):
+- Better semantic understanding
+- More expensive ($0.0001 per 1k tokens)
+- Higher dimensionality (more precise)
+
+For this experiment, I used MiniLM since it's free and runs locally:
+
+```python
+from sentence_transformers import SentenceTransformer
+
+model = SentenceTransformer('all-MiniLM-L6-v2')
+
+chunks = load_chunks('knowledge_base/')
+embeddings = model.encode(chunks)
+```
+
+Each chunk becomes a 384-dimensional vector.
+
+## Step 2: Vector Databases
+
+You need a database that can search by vector similarity (not by keywords).
+
+Week 1 compared several options:
+
+- **FAISS** (Facebook AI Similarity Search): In-memory, fast, no server required
+- **Pinecone**: Managed service, scales well, paid
+- **Weaviate**: Open-source, more features (hybrid search, filtering)
+- **ChromaDB**: Simple, SQLite-based, great for prototyping
+
+I started with **ChromaDB** because it's the easiest to set up:
+
+```python
+import chromadb
+
+client = chromadb.Client()
+collection = client.create_collection("knowledge_base")
+
+# Add documents
+collection.add(
+    documents=chunks,
+    embeddings=embeddings,
+    ids=[f"chunk_{i}" for i in range(len(chunks))]
+)
+```
+
+Done. No server, no config files, just works.
+
+## Step 3: Retrieval
+
+When a user asks a question, you:
+1. Embed the question
+2. Search the vector DB for the most similar chunks
+3. Return the top K results (usually K=3-5)
+
+```python
+query = "How do I reset my password?"
+query_embedding = model.encode([query])[0]
+
+results = collection.query(
+    query_embeddings=[query_embedding],
+    n_results=3
+)
+
+print(results['documents'])
+```
+
+Output:
+```
+[
+  "To reset your password, click 'Forgot Password' on the login page...",
+  "Password requirements: at least 8 characters, one uppercase, one number...",
+  "If you're locked out, contact support@company.com..."
+]
+```
+
+Perfect! The top 3 results are all relevant.
+
+## Step 4: Prompt Construction
+
+Now you inject the retrieved chunks into the LLM prompt:
+
+```python
+context = "\n\n".join(results['documents'])
+
+prompt = f"""
+Use the following context to answer the question. If you can't answer based on the context, say so.
+
+Context:
+{context}
+
+Question: {query}
+
+Answer:
+"""
+
+# Send to LLM
+response = openai.ChatCompletion.create(
+    model="gpt-4",
+    messages=[{"role": "user", "content": prompt}]
+)
+
+print(response['choices'][0]['message']['content'])
+```
+
+Output:
+```
+To reset your password, click 'Forgot Password' on the login page and follow the instructions. 
+Your new password must be at least 8 characters long and include one uppercase letter and one number. 
+If you're locked out, contact support@company.com.
+```
+
+The LLM synthesized information from all three chunks into a coherent answer.
+
+## Real-World Test: Our Internal Knowledge Base
+
+I deployed a simple RAG system for our engineering team:
+
+**Knowledge base**: 200 internal docs (APIs, deployment guides, troubleshooting)
+
+**Questions tested**:
+- "How do I deploy to staging?"
+- "What's the database connection string format?"
+- "Why is the CI pipeline failing?"
+
+**Results**:
+- **Accuracy**: ~85% (based on engineer feedback)
+- **Latency**: ~2s per query
+- **Cost**: ~$0.01 per query (mostly LLM inference)
+
+**Where it worked well**:
+- Factual questions with clear answers in the docs
+- "How-to" guides
+- Troubleshooting steps
+
+**Where it struggled**:
+- Questions requiring reasoning across multiple docs
+- Ambiguous queries ("Why isn't X working?" without details)
+- Questions outside the knowledge base (it sometimes hallucinated instead of saying "I don't know")
+
+## The Hallucination Problem
+
+Week 1 emphasized a critical issue: **LLMs will sometimes ignore your context and make things up**.
+
+Example:
+
+**Context**: "Our API rate limit is 1000 requests per hour."
+
+**Question**: "What's the daily rate limit?"
+
+**LLM response**: "The daily rate limit is 24,000 requests."
+
+Technically correct math (1000 × 24), but the docs never said anything about daily limits. The LLM inferred it.
+
+**Solution**: Instruct the LLM to stick to the context:
+
+```python
+prompt = f"""
+Answer the question using ONLY the information in the context below. 
+If the answer isn't in the context, say "I don't have that information."
+
+Context:
+{context}
+
+Question: {query}
+"""
+```
+
+This reduced hallucinations but didn't eliminate them. Week 2 covers more advanced techniques (like citation tracking).
+
+## Evaluation Metrics
+
+How do you measure RAG quality?
+
+Week 1 introduced two key metrics:
+
+### 1. Retrieval Precision
+- Did you retrieve the right documents?
+- Manually check: are the top K results actually relevant?
+
+I tested 50 queries from our team:
+- **Top-1 precision**: 72% (the best result was relevant)
+- **Top-3 precision**: 89% (at least one of the top 3 was relevant)
+
+### 2. Answer Quality
+- Did the LLM generate a correct, helpful answer?
+- Human evaluation (engineers rated answers as good/ok/bad)
+
+Results:
+- **Good**: 68%
+- **OK**: 17%
+- **Bad**: 15%
+
+The bad answers were usually due to poor retrieval (wrong chunks) or hallucinations.
+
+## Improving Retrieval: Query Rewriting
+
+One trick from Week 1: **rewrite the user's query** before embedding it.
+
+Example:
+
+**User query**: "reset password"
+
+This is very short and lacks context. Better to expand it:
+
+**Rewritten query**: "How do I reset my password on this platform?"
+
+You can do this with an LLM:
+
+```python
+rewrite_prompt = f"""
+Rewrite the following query to be more specific and searchable:
+
+Original: {user_query}
+
+Rewritten:
+"""
+
+rewritten = openai.ChatCompletion.create(model="gpt-4", messages=[{"role": "user", "content": rewrite_prompt}])
+query_for_search = rewritten['choices'][0]['message']['content']
+```
+
+This improved retrieval precision from 72% → 81%.
+
+## My RAG Stack (So Far)
+
+After Week 1, here's my setup:
+
+- **Chunking**: Structure-aware (Markdown headings) + semantic splitting
+- **Embeddings**: `all-MiniLM-L6-v2` (fast, free, good enough)
+- **Vector DB**: ChromaDB (simple, local, no infrastructure)
+- **LLM**: GPT-4 (for generation quality)
+- **Prompt engineering**: Strict instructions to avoid hallucinations
+
+## Key Takeaways from Week 1
+
+1. **RAG is for factual, changing knowledge** — fine-tuning is for style/reasoning
+2. **Retrieval quality matters more than LLM quality** — garbage in, garbage out
+3. **Vector databases make semantic search possible** — keyword search isn't enough
+4. **Prompt engineering is critical** — instruct the LLM to stick to context
+5. **Evaluate both retrieval and generation separately** — they fail in different ways
+
+## What's Next
+
+Week 2 covers:
+- Building more sophisticated retrieval pipelines
+- Hybrid search (combining semantic + keyword)
+- Re-ranking retrieved results
+- Handling multi-hop reasoning
+
+I'm also experimenting with Claude Code to auto-save my course notes to Notion after each lesson. Makes reviewing so much easier.
+
+*— Deepak*

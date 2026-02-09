@@ -1,0 +1,282 @@
+---
+title: "Understanding Tokenization: HuggingFace Course Chapter 2"
+publishedAt: "2025-11-22"
+summary: "Tokenization seemed simple at first — just breaking text into pieces, right? Wrong. Chapter 2 of the HuggingFace course revealed why tokenization is critical and how different strategies impact model performance."
+tag: "LLM & AI"
+---
+
+# Tokenization: The Hidden Complexity Behind Every LLM
+
+After Chapter 1's overview of transformers, I thought Chapter 2 would be straightforward. Tokenization is just splitting text into chunks, right?
+
+Nope. Not even close.
+
+Tokenization is one of those things that seems trivial until you dig in. Then you realize it's a fascinating balance between:
+- Vocabulary size (memory constraints)
+- Semantic meaning (preserving word boundaries)
+- Handling rare words (no unknown tokens)
+- Multilingual support (different scripts and languages)
+
+Let's break down what I learned.
+
+## Why Not Just Split on Spaces?
+
+The naive approach: split on whitespace and punctuation.
+
+```
+"Hello, world!" → ["Hello", ",", "world", "!"]
+```
+
+This works for English... sort of. But:
+
+1. **Vocabulary explosion** — Every unique word needs an entry in the vocabulary. English has 170,000+ words in active use. Add names, brands, technical terms, typos, and you're looking at millions of tokens.
+
+2. **Out-of-vocabulary (OOV) words** — What happens when the model sees "ChatGPT" but only has "Chat" and "GPT" as separate words? The model treats it as `[UNK]` (unknown), losing meaning.
+
+3. **Morphology issues** — "run," "running," "ran" are three separate words in word-level tokenization, but they share a root. The model has to learn this relationship from scratch rather than understanding it structurally.
+
+4. **No multilingual support** — Languages like Chinese and Japanese don't use spaces. This approach breaks completely.
+
+So word-level tokenization is out.
+
+## Character-Level Tokenization?
+
+Opposite extreme: treat every character as a token.
+
+```
+"Hello" → ["H", "e", "l", "l", "o"]
+```
+
+Pros:
+- Tiny vocabulary (26 letters + punctuation + numbers ≈ 100 tokens)
+- No OOV problem — every word is just a sequence of known characters
+
+Cons:
+- **Sequences get very long** — "Transformer" is 1 word token but 11 character tokens. Models have context length limits, so this wastes space.
+- **Harder to learn meaning** — The model has to learn that "c-a-t" represents the concept of a cat, rather than just seeing the token "cat" directly.
+
+Character-level can work, but it's inefficient.
+
+## Subword Tokenization: The Goldilocks Solution
+
+Modern tokenizers use **subword tokenization** — a middle ground between words and characters.
+
+The idea: split words into meaningful subunits.
+
+Example with BPE (Byte-Pair Encoding):
+```
+"unhappiness" → ["un", "happiness"]
+"happiness" → ["happiness"]
+"happy" → ["happy"]
+```
+
+The model learns common subwords like "un-", "-ness", "-ing" and can compose them.
+
+Benefits:
+- **Smaller vocabulary** (30k-50k tokens instead of millions)
+- **No OOV problem** — rare words break into known subwords
+- **Better generalization** — the model learns prefixes/suffixes and can understand new words
+
+Most modern models use subword tokenization:
+- **BERT**: WordPiece
+- **GPT**: Byte-Pair Encoding (BPE)
+- **T5**: SentencePiece
+
+## Byte-Pair Encoding (BPE) Deep Dive
+
+BPE is the most common subword algorithm, so I spent time really understanding it.
+
+### How BPE Works
+
+1. Start with character-level tokens
+2. Find the most frequent pair of adjacent tokens
+3. Merge that pair into a new token
+4. Repeat until you hit your vocabulary size target
+
+Example training on a tiny corpus:
+
+```
+Corpus: ["low", "lower", "newest", "widest"]
+
+Initial (character-level):
+l o w
+l o w e r
+n e w e s t
+w i d e s t
+
+Step 1: Most frequent pair is "e" + "s" (appears twice)
+Merge → "es" becomes a token
+
+l o w
+l o w e r
+n e w es t
+w i d es t
+
+Step 2: Most frequent pair is "es" + "t"
+Merge → "est" becomes a token
+
+l o w
+l o w e r
+n e w est
+w i d est
+
+... and so on.
+```
+
+After training, the tokenizer knows:
+- Common characters (a, b, c...)
+- Common subwords (est, er, ing...)
+- Common full words (the, and, is...)
+
+When tokenizing new text, it applies these learned merges.
+
+## Why This Matters: Token Limits
+
+I had a practical problem at work: our customer support system generates long threads. When I tried feeding a 12,000-word thread into GPT-4, I hit the 8k token limit.
+
+But here's the thing: **8k tokens ≠ 8k words**.
+
+Using the GPT-2 tokenizer (similar to GPT-4):
+- "Hello world" = 2 tokens
+- "HuggingFace transformers" = 5 tokens (because "HuggingFace" isn't common)
+- A 1,000-word document ≈ 1,300-1,500 tokens (depending on vocabulary)
+
+Complex or rare words take more tokens. If your document is full of technical jargon, you'll hit the limit faster.
+
+**Practical lesson**: When estimating costs for API usage (which charge per token), you need to count tokens, not words. I built a quick script using the HuggingFace tokenizer to estimate costs before sending batches to the API.
+
+```python
+from transformers import AutoTokenizer
+
+tokenizer = AutoTokenizer.from_pretrained("gpt2")
+text = "Your long document here..."
+tokens = tokenizer.encode(text)
+print(f"Token count: {len(tokens)}")
+```
+
+This saved us from accidentally blowing our API budget on overly long inputs.
+
+## Different Tokenizers for Different Models
+
+Here's something I didn't realize at first: **you can't mix tokenizers and models**.
+
+Each model is trained with a specific tokenizer. If you use the wrong one, the model gets gibberish.
+
+Example:
+```python
+from transformers import BertTokenizer, GPT2Tokenizer
+
+bert_tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
+gpt2_tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+
+text = "HuggingFace is awesome!"
+
+print(bert_tokenizer.tokenize(text))
+# ['hugging', '##face', 'is', 'awesome', '!']
+
+print(gpt2_tokenizer.tokenize(text))
+# ['Hu', 'gging', 'Face', 'Ġis', 'Ġawesome', '!']
+```
+
+Notice:
+- BERT uses `##` to indicate subword continuation
+- GPT-2 uses `Ġ` to indicate a space before the token
+- They split "HuggingFace" differently
+
+If you tokenize with BERT's tokenizer but feed it to GPT-2, the token IDs won't match the vocabulary, and you'll get nonsense output.
+
+**The rule**: Always use `AutoTokenizer.from_pretrained(model_name)` to ensure compatibility.
+
+## Special Tokens: [CLS], [SEP], [PAD], etc.
+
+Different models add special tokens for different purposes:
+
+- **[CLS]** (BERT): Classification token at the start
+- **[SEP]** (BERT): Separator between sentences
+- **[PAD]**: Padding token to make sequences the same length
+- **[UNK]**: Unknown token (ideally rare with subword tokenization)
+- **[MASK]** (BERT): Used in masked language modeling
+
+Example BERT tokenization:
+```
+Input: "Hello world"
+Tokens: ["[CLS]", "Hello", "world", "[SEP]"]
+```
+
+GPT models don't use [CLS] or [SEP] because they're decoder-only (they just generate text left-to-right). But they do use special tokens for tasks like chat formatting (e.g., `<|endoftext|>`).
+
+I ran into this when trying to fine-tune a BERT model for sentence similarity. I forgot to include the [CLS] token, and the model's performance tanked. Once I added it back, accuracy jumped by 15%.
+
+**Lesson**: Understand your model's expected input format, including special tokens.
+
+## Experimenting with Custom Tokenizers
+
+Out of curiosity, I tried building a custom tokenizer using HuggingFace's `tokenizers` library.
+
+Use case: Our workplace uses a lot of internal acronyms (e.g., "JIRA-1234", "PR-567", "DEPLOY-ENV-PROD"). Standard tokenizers split these awkwardly.
+
+I trained a custom BPE tokenizer on 10,000 internal documents:
+
+```python
+from tokenizers import Tokenizer
+from tokenizers.models import BPE
+from tokenizers.trainers import BpeTrainer
+from tokenizers.pre_tokenizers import Whitespace
+
+tokenizer = Tokenizer(BPE())
+tokenizer.pre_tokenizer = Whitespace()
+
+trainer = BpeTrainer(vocab_size=5000, special_tokens=["[PAD]", "[UNK]", "[CLS]", "[SEP]"])
+tokenizer.train_from_iterator(documents, trainer)
+
+tokenizer.save("custom_tokenizer.json")
+```
+
+Result: The custom tokenizer learned our acronym patterns and kept them as single tokens instead of splitting them. This improved downstream classification accuracy by ~5%.
+
+Not a huge gain, but enough to be worth it for domain-specific applications.
+
+## Multilingual Tokenization
+
+Chapter 2 also covered multilingual models like mBERT and XLM-RoBERTa.
+
+These use SentencePiece, which is language-agnostic. Instead of splitting on spaces (which assumes alphabetic text), it works at the byte level and can handle:
+- Chinese/Japanese (no spaces)
+- Arabic (right-to-left)
+- Emoji and special characters
+
+I tested this with a mix of English, Japanese (which I'm learning!), and Hindi:
+
+```python
+from transformers import AutoTokenizer
+
+tokenizer = AutoTokenizer.from_pretrained("bert-base-multilingual-cased")
+
+english = "Hello world"
+japanese = "こんにちは世界"
+hindi = "नमस्ते दुनिया"
+
+print(tokenizer.tokenize(english))
+print(tokenizer.tokenize(japanese))
+print(tokenizer.tokenize(hindi))
+```
+
+All three tokenized cleanly without breaking. This is important because we're expanding our support system to handle non-English customer feedback.
+
+## Key Takeaways from Chapter 2
+
+1. **Subword tokenization is the standard** (BPE, WordPiece, SentencePiece)
+2. **Always match tokenizer to model** — they're trained together
+3. **Token limits are not word limits** — rare words take more tokens
+4. **Special tokens matter** — [CLS], [SEP], etc. are part of the input format
+5. **Custom tokenizers can help** for domain-specific vocabulary
+
+## What's Next
+
+Chapter 3 is about fine-tuning models. I'm planning to fine-tune a BERT classifier on our customer feedback data to automatically route tickets to the right team.
+
+I'll also experiment with LoRA (Low-Rank Adaptation) for more efficient fine-tuning, since full fine-tuning is expensive.
+
+If you're following along with the HuggingFace course, let me know how it's going!
+
+*— Deepak*

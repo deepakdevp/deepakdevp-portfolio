@@ -1,0 +1,404 @@
+---
+title: "Sharing Models with the Hub: HuggingFace Course Chapter 4"
+publishedAt: "2025-12-19"
+summary: "Chapter 4 teaches you how to share models, datasets, and experiments on the HuggingFace Hub. It's like GitHub for ML, and it's changing how teams collaborate on AI projects."
+tag: "LLM & AI"
+---
+
+# The HuggingFace Hub: GitHub for Machine Learning
+
+After fine-tuning my ticket classifier in Chapter 3, I had a working model sitting on my laptop. Great for me, useless for anyone else.
+
+Chapter 4 showed me how to share it on the HuggingFace Hub — a platform for hosting models, datasets, and even entire ML applications.
+
+Think of it as **GitHub for machine learning**. You can:
+- Upload trained models
+- Version them
+- Share with your team (or the world)
+- Deploy directly from the Hub
+- Track experiments and metrics
+
+This chapter changed how I think about ML collaboration.
+
+## Why the Hub Matters
+
+Before the Hub, sharing ML models was a mess:
+- Email huge .pt files back and forth
+- Store them on Dropbox or Google Drive
+- Hope nobody loses the training config
+- No version control
+- No easy way to try someone else's model
+
+The Hub solves all of this.
+
+### Real Example: Sharing My Ticket Classifier
+
+After fine-tuning BERT for ticket classification (Chapter 3), I wanted to share it with my team.
+
+Before: "Hey, here's a 440 MB .bin file. Make sure you use this exact tokenizer. Oh, and here's the config.json. Don't lose it."
+
+After: "Here's the model: `deepak/ticket-classifier`. Just `pip install transformers` and use it."
+
+```python
+from transformers import pipeline
+
+classifier = pipeline('text-classification', model='deepak/ticket-classifier')
+result = classifier("The deployment script is broken")
+print(result)
+# {'label': 'infrastructure', 'score': 0.94}
+```
+
+One line. Works for everyone.
+
+## Uploading a Model to the Hub
+
+Super simple with the `huggingface_hub` library:
+
+```python
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
+model = AutoModelForSequenceClassification.from_pretrained('./fine-tuned-bert')
+tokenizer = AutoTokenizer.from_pretrained('./fine-tuned-bert')
+
+model.push_to_hub('deepak/ticket-classifier')
+tokenizer.push_to_hub('deepak/ticket-classifier')
+```
+
+Behind the scenes, this:
+1. Creates a repository on the Hub (like a GitHub repo)
+2. Uploads the model weights, config, and tokenizer
+3. Generates a model card (README explaining what the model does)
+
+Now anyone can access it with:
+
+```python
+from transformers import pipeline
+classifier = pipeline('text-classification', model='deepak/ticket-classifier')
+```
+
+No downloads, no setup. It just works.
+
+## Model Cards: Documentation That Actually Helps
+
+One of the best parts of the Hub: **model cards**.
+
+Every model has a README explaining:
+- What it does
+- How it was trained
+- What data it was trained on
+- Limitations and biases
+- Example usage
+
+Here's the model card I wrote for my ticket classifier:
+
+```markdown
+---
+language: en
+tags:
+- text-classification
+- ticket-classification
+datasets:
+- internal-tickets
+metrics:
+- accuracy
+---
+
+# Ticket Classifier
+
+This model classifies support tickets into four categories:
+- `bug` - Software defects
+- `infrastructure` - DevOps/deployment issues
+- `feature-request` - New feature requests
+- `question` - General inquiries
+
+## Training Data
+Trained on 2,000 historical support tickets from our internal system.
+
+## Performance
+- Accuracy: 89%
+- Precision: 88%
+- Recall: 88%
+
+## Usage
+```python
+from transformers import pipeline
+classifier = pipeline('text-classification', model='deepak/ticket-classifier')
+result = classifier("The API is returning 500 errors")
+print(result)
+```
+
+## Limitations
+- Trained on English-only data
+- May not generalize to other companies' terminology
+- Performance drops on very short tickets (<10 words)
+```
+
+This is infinitely better than "here's a model.bin file, good luck."
+
+## Versioning Models (Like Git Commits)
+
+The Hub supports Git under the hood, so you can:
+- Make changes to your model
+- Commit with a message
+- Push new versions
+- Roll back if needed
+
+Example:
+
+```python
+# Version 1: Initial model
+model.push_to_hub('deepak/ticket-classifier', commit_message='Initial release')
+
+# Train for a few more epochs
+trainer.train()
+
+# Version 2: Improved accuracy
+model.push_to_hub('deepak/ticket-classifier', commit_message='Improved accuracy to 91%')
+```
+
+Now your repo has a history:
+```
+v1: Initial release (89% accuracy)
+v2: Improved accuracy to 91%
+```
+
+Anyone can load a specific version:
+
+```python
+# Load the latest version
+model = AutoModelForSequenceClassification.from_pretrained('deepak/ticket-classifier')
+
+# Load v1 specifically
+model = AutoModelForSequenceClassification.from_pretrained('deepak/ticket-classifier', revision='v1')
+```
+
+This is huge for reproducibility. If someone reports a bug with v1, you can test it with the exact model they used.
+
+## Private vs. Public Models
+
+By default, models are public (anyone can use them).
+
+But you can make them private:
+
+```python
+model.push_to_hub('deepak/ticket-classifier', private=True)
+```
+
+Now only you (and people you grant access to) can use it.
+
+At work, we're using private repos for internal models. We share them across the team but don't want competitors seeing our custom classification models.
+
+## Sharing Datasets Too
+
+The Hub isn't just for models — you can share datasets.
+
+I uploaded our (anonymized) ticket dataset:
+
+```python
+from datasets import Dataset
+import pandas as pd
+
+data = pd.read_csv('tickets_anonymized.csv')
+dataset = Dataset.from_pandas(data)
+
+dataset.push_to_hub('deepak/support-tickets')
+```
+
+Now anyone can load it:
+
+```python
+from datasets import load_dataset
+dataset = load_dataset('deepak/support-tickets')
+print(dataset['train'][0])
+```
+
+This is perfect for:
+- Sharing benchmark datasets
+- Reproducing experiments
+- Collaborating on data cleaning
+
+## Spaces: Deploy Models as Web Apps
+
+This blew my mind: you can deploy models as interactive web apps directly from the Hub.
+
+HuggingFace Spaces supports:
+- **Gradio** - Simple Python-based UIs
+- **Streamlit** - Data app framework
+- **Static HTML** - For custom UIs
+
+I deployed my ticket classifier as a Gradio app:
+
+```python
+import gradio as gr
+from transformers import pipeline
+
+classifier = pipeline('text-classification', model='deepak/ticket-classifier')
+
+def classify_ticket(text):
+    result = classifier(text)[0]
+    return f"{result['label']} (confidence: {result['score']:.2f})"
+
+demo = gr.Interface(
+    fn=classify_ticket,
+    inputs=gr.Textbox(label="Ticket Description"),
+    outputs=gr.Textbox(label="Category"),
+    title="Support Ticket Classifier",
+    description="Classify support tickets into bug/infrastructure/feature-request/question"
+)
+
+demo.launch()
+```
+
+Push to a Space:
+
+```bash
+git add .
+git commit -m "Initial commit"
+git push
+```
+
+Now it's live at: `https://huggingface.co/spaces/deepak/ticket-classifier`
+
+Anyone can visit the URL and try the model without writing code.
+
+I shared this with our product team, and they loved it. They can now test the classifier on real tickets without asking engineering for help.
+
+## Organizations and Team Collaboration
+
+For team projects, you can create **Organizations** (like GitHub orgs).
+
+At work, I created a `mycompany` org:
+
+```python
+model.push_to_hub('mycompany/ticket-classifier')
+```
+
+Now:
+- All team members can access it
+- We can manage permissions (who can read/write)
+- Models are namespaced under `mycompany/`
+
+This is way better than everyone having their own personal copies of models.
+
+## Model Management: Tags and Collections
+
+You can tag models with metadata:
+
+```python
+model.push_to_hub(
+    'deepak/ticket-classifier',
+    tags=['text-classification', 'support', 'internal'],
+    language='en',
+    license='mit'
+)
+```
+
+This makes models searchable. If someone on our team searches for "support classification," they'll find it.
+
+You can also create **Collections** — curated lists of models/datasets for specific use cases.
+
+Example: I created a "Support Automation" collection with:
+- Ticket classifier
+- Sentiment analyzer
+- Intent detector
+- FAQ retriever
+
+This is like a "playlist" of models for anyone working on support automation.
+
+## Real-World Impact: Standardizing Our ML Workflow
+
+Before the Hub, our team's ML workflow was chaotic:
+- Models stored in random S3 buckets
+- No documentation
+- No versioning
+- Hard to share or deploy
+
+After adopting the Hub:
+- All models live in `mycompany/` org
+- Every model has a card explaining usage
+- Versioned with Git
+- Easy to deploy (Spaces or API)
+
+**Time saved**: ~10 hours/week (no more "where's that model?" or "how do I run this?")
+
+**Collaboration improved**: Other teams can actually use our models without engineering help
+
+## Advanced: Programmatic Access
+
+You can also interact with the Hub programmatically:
+
+```python
+from huggingface_hub import HfApi
+
+api = HfApi()
+
+# List all models in an org
+models = api.list_models(author='mycompany')
+
+# Get model info
+info = api.model_info('deepak/ticket-classifier')
+print(info.downloads)  # Number of downloads
+
+# Upload a file
+api.upload_file(
+    path_or_fileobj='./metrics.json',
+    path_in_repo='metrics.json',
+    repo_id='deepak/ticket-classifier'
+)
+```
+
+We use this for CI/CD pipelines. Every time we retrain a model, our pipeline:
+1. Evaluates performance
+2. If accuracy > 90%, push to Hub
+3. Update model card with new metrics
+4. Deploy to production
+
+All automated.
+
+## Inference API: Free Hosting
+
+Another cool feature: the Hub hosts models and provides a **free inference API**.
+
+```bash
+curl https://api-inference.huggingface.co/models/deepak/ticket-classifier \
+  -X POST \
+  -d '{"inputs": "The API is down"}' \
+  -H "Content-Type: application/json"
+```
+
+Response:
+```json
+[{"label": "infrastructure", "score": 0.94}]
+```
+
+No server, no deployment, no cost (for small-scale usage).
+
+We're using this for prototyping. Once we hit scale, we'll self-host, but for early testing, the free API is perfect.
+
+## Key Takeaways from Chapter 4
+
+1. **The Hub is GitHub for ML** — version control, collaboration, sharing
+2. **Model cards are essential** — document your models like you document code
+3. **Private repos protect proprietary models** while still enabling team collaboration
+4. **Spaces make deployment trivial** — no DevOps required
+5. **Organizations standardize team workflows** — no more scattered S3 buckets
+
+## What I'm Using the Hub For
+
+- **Ticket classifier**: Shared with product team via Space
+- **Internal datasets**: Uploaded for reproducibility
+- **Experiment tracking**: Each training run gets pushed as a new version
+- **Collaboration**: Other engineers can now fine-tune and improve models
+
+## What's Next
+
+Chapter 5 covers the `datasets` library in depth — how to load, process, and share datasets efficiently.
+
+I'm also exploring:
+- **Weights & Biases integration** for experiment tracking
+- **Automated model deployment** via CI/CD
+- **Fine-tuning on multi-GPU setups** (our current training is single-GPU)
+
+If you're not using the Hub yet, try it. It's free, and it'll change how you work with models.
+
+*— Deepak*
