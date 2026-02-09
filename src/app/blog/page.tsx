@@ -1,6 +1,7 @@
 import { Column, Heading, Meta, Schema } from '@once-ui-system/core';
 import { ContactMe } from '@/components/ContactMe';
-import { Posts } from '@/components/blog/Posts';
+import { BlogTimeline } from '@/components/blog/BlogTimeline';
+import { getPosts } from '@/utils/utils';
 import { baseURL, blog, person } from '@/resources';
 
 export async function generateMetadata() {
@@ -14,8 +15,10 @@ export async function generateMetadata() {
 }
 
 export default function Blog() {
+  const posts = getPosts(['src', 'app', 'blog', 'posts']);
+  
   return (
-    <Column maxWidth="s">
+    <Column maxWidth="m">
       <Schema
         as="blogPosting"
         baseURL={baseURL}
@@ -35,9 +38,7 @@ export default function Blog() {
         {blog.title}
       </Heading>
       <Column fillWidth flex={1}>
-        <Posts range={[1, 1]} thumbnail direction="column" />
-        <Posts range={[2, 3]} thumbnail />
-        <Posts range={[4]} columns="2" />
+        <BlogTimeline posts={posts} />
       </Column>
       <ContactMe />
     </Column>
