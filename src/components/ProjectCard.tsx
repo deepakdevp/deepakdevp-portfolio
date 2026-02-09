@@ -2,10 +2,10 @@
 
 import {
   AvatarGroup,
-  Carousel,
   Column,
   Flex,
   Heading,
+  Media,
   SmartLink,
   Text,
 } from "@once-ui-system/core";
@@ -31,60 +31,91 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   link,
 }) => {
   return (
-    <Column fillWidth gap="m">
-      <Carousel
-        sizes="(max-width: 960px) 100vw, 960px"
-        items={images.map((image) => ({
-          slide: image,
-          alt: title,
-        }))}
-      />
-      <Flex
-        mobileDirection="column"
-        fillWidth
-        paddingX="s"
-        paddingTop="12"
-        paddingBottom="24"
-        gap="l"
-      >
+    <Flex
+      fillWidth
+      gap="l"
+      mobileDirection="column"
+      padding="m"
+      radius="l"
+      border="neutral-alpha-weak"
+      background="surface"
+      style={{
+        transition: 'all 0.2s ease',
+      }}
+    >
+      {/* Compact image on the left */}
+      {images.length > 0 && (
+        <Flex
+          style={{
+            width: '280px',
+            minWidth: '280px',
+            height: '180px',
+            overflow: 'hidden',
+            borderRadius: 'var(--radius-m)',
+          }}
+        >
+          <Media
+            src={images[0]}
+            alt={title}
+            sizes="280px"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+            }}
+          />
+        </Flex>
+      )}
+      
+      {/* Content on the right */}
+      <Column flex={1} gap="12" vertical="center">
         {title && (
-          <Flex flex={5}>
-            <Heading as="h2" wrap="balance" variant="heading-strong-xl">
-              {title}
-            </Heading>
-          </Flex>
+          <Heading as="h2" wrap="balance" variant="heading-strong-l">
+            {title}
+          </Heading>
         )}
-        {(avatars?.length > 0 || description?.trim() || content?.trim()) && (
-          <Column flex={7} gap="16">
-            {avatars?.length > 0 && <AvatarGroup avatars={avatars} size="m" reverse />}
-            {description?.trim() && (
-              <Text wrap="balance" variant="body-default-s" onBackground="neutral-weak">
-                {description}
-              </Text>
-            )}
-            <Flex gap="24" wrap>
-              {content?.trim() && (
-                <SmartLink
-                  suffixIcon="arrowRight"
-                  style={{ margin: "0", width: "fit-content" }}
-                  href={href}
-                >
-                  <Text variant="body-default-s">Read case study</Text>
-                </SmartLink>
-              )}
-              {link && (
-                <SmartLink
-                  suffixIcon="arrowUpRightFromSquare"
-                  style={{ margin: "0", width: "fit-content" }}
-                  href={link}
-                >
-                  <Text variant="body-default-s">View project</Text>
-                </SmartLink>
-              )}
-            </Flex>
-          </Column>
+        
+        {avatars?.length > 0 && (
+          <AvatarGroup avatars={avatars} size="s" reverse />
         )}
-      </Flex>
-    </Column>
+        
+        {description?.trim() && (
+          <Text
+            wrap="balance"
+            variant="body-default-s"
+            onBackground="neutral-weak"
+            style={{
+              display: '-webkit-box',
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+            }}
+          >
+            {description}
+          </Text>
+        )}
+        
+        <Flex gap="16" wrap style={{ marginTop: 'auto' }}>
+          {content?.trim() && (
+            <SmartLink
+              suffixIcon="arrowRight"
+              style={{ margin: "0", width: "fit-content" }}
+              href={href}
+            >
+              <Text variant="body-default-s">Read case study</Text>
+            </SmartLink>
+          )}
+          {link && (
+            <SmartLink
+              suffixIcon="arrowUpRightFromSquare"
+              style={{ margin: "0", width: "fit-content" }}
+              href={link}
+            >
+              <Text variant="body-default-s">View project</Text>
+            </SmartLink>
+          )}
+        </Flex>
+      </Column>
+    </Flex>
   );
 };
