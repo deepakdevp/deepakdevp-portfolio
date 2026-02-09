@@ -130,7 +130,7 @@ print(result)
 ## Limitations
 - Trained on English-only data
 - May not generalize to other companies' terminology
-- Performance drops on very short tickets (<10 words)
+- Performance drops on very short tickets (less than 10 words)
 ```
 
 This is infinitely better than "here's a model.bin file, good luck."
@@ -349,7 +349,7 @@ api.upload_file(
 
 We use this for CI/CD pipelines. Every time we retrain a model, our pipeline:
 1. Evaluates performance
-2. If accuracy > 90%, push to Hub
+2. If accuracy exceeds 90%, push to Hub
 3. Update model card with new metrics
 4. Deploy to production
 
