@@ -125,7 +125,7 @@ export default function Home() {
         <RevealFx
           translateY="8"
           delay={0.3}
-          style={{ flex: '0 0 auto' }}
+          style={{ flex: '0 0 auto', maxWidth: '100%' }}
         >
           <Image
             src={person.avatar}
@@ -136,6 +136,8 @@ export default function Home() {
               borderRadius: '1.5rem',
               objectFit: 'cover',
               boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+              maxWidth: '100%',
+              height: 'auto',
             }}
             priority
           />
