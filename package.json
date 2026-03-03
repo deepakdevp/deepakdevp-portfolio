@@ -40,18 +40,5 @@
     "husky": "^9.1.7",
     "lint-staged": "^15.3.0",
     "typescript": "^5.8.3"
-  },
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx,mjs}": [
-      "biome format --write",
-      "biome lint --write",
-      "tsc --noEmit"
-    ],
-    "*.{css,scss,sass}": [
-      "biome format --write"
-    ],
-    "*.{json,md,yml,yaml}": [
-      "biome format --write"
-    ]
   }
 }
