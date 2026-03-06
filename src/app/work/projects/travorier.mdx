@@ -1,0 +1,157 @@
+---
+title: "Travorier - Crowdsourced Logistics Platform"
+publishedAt: "2026-02-01"
+summary: "Building a peer-to-peer logistics SaaS that connects travelers with spare luggage capacity to people who need to send packages — solving the expensive courier problem for India ↔ UAE routes."
+tags:
+  - React Native
+  - Expo
+  - FastAPI
+  - Supabase
+  - Python
+  - TypeScript
+  - Stripe
+  - Firebase
+team:
+  - name: "Deepak Dev Panwar"
+    role: "Founder & Full Stack Developer"
+    avatar: "/images/my_avatar.png"
+    linkedIn: "https://www.linkedin.com/in/deepak-dev-panwar-166187135/"
+link: "https://github.com/deepakdevp/travorier"
+---
+
+## Overview
+
+**Travorier** (formerly CarryShare) is a crowdsourced logistics SaaS platform that bridges two everyday realities: travelers flying with unused luggage capacity and people needing to ship packages affordably.
+
+Traditional international courier services charge ₹3,000–5,000 for a 2kg parcel from Mumbai to Dubai — and they take 3–5 days. Meanwhile, millions of travelers fly the same route weekly carrying far less than their allowed weight. Travorier turns that wasted capacity into a win-win: senders get same-day or next-day delivery at a fraction of the cost, and travelers earn ₹500–1,500 per trip.
+
+The platform acts purely as a **discovery and verification engine**. It is not a courier — it enables verified peer-to-peer agreements between users.
+
+---
+
+## Problem Statement
+
+| Pain Point | Traditional Couriers | Travorier |
+|---|---|---|
+| Cost (2kg Mumbai → Dubai) | ₹3,000–5,000 | ₹99 unlock + ₹500 (P2P) |
+| Delivery Time | 3–5 days | Same-day / next-day |
+| Trust | Corporate brand | Verified ID + PNR |
+| Environmental Impact | Dedicated freight | Utilizes existing trips |
+
+---
+
+## How It Works
+
+1. **Traveler posts a trip** — route, date, available kg, price per kg, and optionally verifies their PNR (boarding pass)
+2. **Sender searches and finds a match** — filters by date, destination, price; unlocks traveler contact for ₹99
+3. **Both parties connect via in-app chat** — coordinate package handover location & time
+4. **Physical inspection at handover** — traveler records a video or photos of the unsealed package (proof of contents)
+5. **QR code confirmation at delivery** — recipient scans traveler's QR code to confirm delivery
+
+---
+
+## My Contributions
+
+As the **solo founder and developer**, I am designing and building the entire product from the ground up:
+
+### 📱 Mobile App (React Native / Expo)
+- Built cross-platform app with Expo Router for file-based navigation
+- Implemented Google OAuth + phone OTP via Supabase Auth
+- Real-time chat using Supabase Realtime with 24-hour auto-lock after flight
+- QR code generation and scanning for delivery confirmation
+- Push notifications via Firebase FCM for flight landing alerts and chat messages
+- Trust score display and verification badge system (ID Verified, PNR Verified)
+
+### ⚙️ Backend (FastAPI / Python)
+- RESTful API with Supabase PostgreSQL as primary data store
+- Row-level security (RLS) policies for multi-user data isolation
+- Stripe integration for credit pack purchases (5-credit and 10-credit bundles)
+- Manual admin dashboard for ID and PNR verification workflows
+- Webhook handling for async payment events
+
+### 🗄️ Database & Infrastructure
+- Designed full Supabase schema: users, trips, requests, chats, transactions, verifications
+- Realtime subscriptions for chat and trip status updates
+- Supabase Storage for ID documents, boarding passes, and inspection media
+- Deployed on Vercel with GitHub Actions for CI/CD
+
+---
+
+## Key Features
+
+### 🔐 Trust & Safety System
+- Manual ID verification (government ID + selfie) with admin approval
+- PNR verification via boarding pass screenshot upload
+- Physical inspection protocol: traveler must record unsealed package contents
+- QR-based delivery confirmation — no QR = no "delivered" status
+- 24-hour chat auto-lock after flight departure (prevents harassment/spam)
+
+### 💳 Credit-Based Access Model
+- ₹99 to unlock a traveler's contact details (prevents spam browse-without-intent)
+- ₹49 trip listing fee (ensures only genuine travelers post)
+- Bulk credit packs: 5 credits (10% off) or 10 credits (20% off), 1-year validity
+- Stripe payment integration with test-mode staging environment
+
+### 🏆 Gamified Trust Profiles
+- Trust score calculated from completed deliveries and reviews
+- "Frequent Flyer" badge after 5+ deliveries
+- Weighted reviews: PNR-verified trips count 2× in trust score calculation
+- Traveler and sender ratings visible on all profile cards
+
+---
+
+## Technology Stack
+
+### Frontend
+- **React Native (Expo)** — Cross-platform iOS + Android
+- **TypeScript** — Type-safe development
+- **Zustand** — Lightweight state management
+- **Expo Router** — File-based navigation
+- **NativeWind** — Tailwind-style styling for React Native
+
+### Backend
+- **FastAPI (Python 3.11+)** — REST API and business logic
+- **Pydantic** — Schema validation
+- **Vercel** — Serverless hosting
+
+### Database & Services
+- **Supabase (PostgreSQL)** — Primary data store with RLS
+- **Supabase Auth** — OAuth, phone OTP, JWT management
+- **Supabase Realtime** — Live chat and notifications
+- **Supabase Storage** — Documents, photos, inspection videos
+- **Stripe** — Payment processing for credit packs
+- **Firebase FCM** — Push notifications
+
+---
+
+## Business Model
+
+| Revenue Stream | Price | Notes |
+|---|---|---|
+| Contact Unlock Fee | ₹99 / unlock | Sender pays per traveler contact |
+| Trip Listing Fee | ₹49 / trip | Traveler pays per trip posted |
+| Trip Boost (V2) | ₹199 / 48hrs | Top placement in search results |
+| 5-Credit Pack | 10% discount | Bulk unlock credits |
+| 10-Credit Pack | 20% discount | Bulk unlock credits |
+
+**Platform takes 0% commission on delivery fees** — the traveler-sender agreement is peer-to-peer.
+
+---
+
+## Target Market
+
+- **Initial corridor**: India ↔ UAE (Mumbai–Dubai, Hyderabad–Abu Dhabi, etc.)
+- **Future expansion**: USA, UK, Europe (Indian diaspora routes)
+- **MVP target**: 50+ registered users, 10+ successful deliveries, ₹5,000+ in platform fees
+
+---
+
+## Status
+
+Currently in active development (Phase 1: Foundation). Building authentication, trip discovery, and core database schema.
+
+**Timeline**: February 2026 – April 2026 (12-week sprint to MVP)
+
+---
+
+*Travorier is a bootstrapped solo project — from idea to architecture to code. It reflects my approach to building real products: starting lean, validating with real users, and solving a genuine pain point.*

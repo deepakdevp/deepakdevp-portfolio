@@ -19,7 +19,7 @@ import { Posts } from "@/components/blog/Posts";
 
 export default function Home() {
   return (
-    <Column maxWidth="xl" gap="xl" horizontal="center" paddingX="l">
+    <Column maxWidth="xl" gap="xl" horizontal="center" paddingX="xl">
       <Schema
         as="webPage"
         baseURL={baseURL}
