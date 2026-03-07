@@ -12,7 +12,7 @@ import {
   Row,
   Schema,
 } from "@once-ui-system/core";
-import { home, about, person, baseURL, routes } from "@/resources";
+import { home, about, person, currently, baseURL, routes } from "@/resources";
 import { ContactMe } from "@/components/ContactMe";
 import { Projects } from "@/components/work/Projects";
 import { Posts } from "@/components/blog/Posts";
@@ -121,6 +121,33 @@ export default function Home() {
           </RevealFx>
         </Flex>
       </Flex>
+
+      {currently.display && (
+        <RevealFx translateY="12" delay={0.5} fillWidth>
+          <Flex
+            fillWidth
+            paddingX="l"
+            paddingY="m"
+            gap="24"
+            mobileDirection="column"
+            background="neutral-alpha-weak"
+            radius="l"
+            border="neutral-alpha-medium"
+            borderStyle="solid"
+          >
+            {currently.items.map((item) => (
+              <Flex key={item.label} gap="8" vertical="center">
+                <Text variant="label-strong-s" onBackground="neutral-weak">
+                  {item.label}
+                </Text>
+                <Text variant="body-default-s" onBackground="neutral-strong">
+                  {item.value}
+                </Text>
+              </Flex>
+            ))}
+          </Flex>
+        </RevealFx>
+      )}
 
       <RevealFx translateY="16" delay={0.6}>
         <Projects range={[1, 1]} />

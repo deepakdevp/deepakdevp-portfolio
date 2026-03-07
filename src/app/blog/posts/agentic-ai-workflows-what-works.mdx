@@ -1,0 +1,174 @@
+---
+title: "Agentic AI Workflows: What Actually Works in 2026"
+publishedAt: "2026-03-05"
+summary: "I've spent months building with agentic AI — Claude Code, multi-agent systems, tool use. Most of what I've read is theoretical. Here's what actually works in practice, what breaks, and where the real value is."
+tag: "AI & Engineering"
+---
+
+# Agentic AI: From Theory to Practice
+
+"Agentic AI" has become a buzzword. Everyone's talking about autonomous agents that can browse the web, write code, send emails, and run your life.
+
+The reality, after building with these systems daily, is more nuanced — and more interesting.
+
+Agents aren't magic. They're a new programming paradigm that requires new mental models. The developers who get value from them early are the ones who understand what they're actually good at and where they reliably fail.
+
+Here's what I've learned.
+
+## What "Agentic" Actually Means
+
+An agent, at its core, is an LLM that can:
+1. **Receive a goal** (not just a single question)
+2. **Take actions** (call tools, read files, browse web, run code)
+3. **Observe results** and decide what to do next
+4. **Iterate** until the goal is achieved or it gives up
+
+The key difference from regular LLM use: **the model is in the loop**. It's not just answering questions — it's making decisions about what to do next based on what it discovers.
+
+This sounds simple. The implications are massive.
+
+## Where Agentic AI Actually Delivers Value
+
+After building and using agentic systems, I've found three categories where they consistently outperform alternatives:
+
+### 1. Tasks with Unknown Scope
+
+Regular software is great when you know exactly what you want. Agents shine when you don't.
+
+"Find all the places in this codebase where we're not handling the error from this API call, and fix them" — this is a task with unknown scope. You don't know how many files are affected. You don't know the shape of each fix. A rule-based script can't do this. A single LLM prompt can't do this. An agent can: it searches, reads, finds patterns, and executes fixes iteratively.
+
+### 2. Tasks That Require Connecting Information From Multiple Sources
+
+"Based on our Q4 metrics from Mixpanel, our support tickets from Zendesk, and the feature requests in our Notion, write a product brief for next quarter's priorities."
+
+A human would spend a day on this. An agent with the right tools can do it in minutes. The value isn't that the agent is smarter than you — it's that it doesn't get bored or fatigued when reading 200 support tickets.
+
+### 3. Tedious Repetitive Tasks That Have Exceptions
+
+Pure repetition is better handled by traditional automation. But tasks that are *mostly* repetitive with occasional edge cases that require judgment? That's the agent sweet spot.
+
+Invoice processing (as I wrote about in my previous post) is an example. The 80% of invoices that are straightforward are handled automatically. The 20% with exceptions get routed for human review, but even then the agent has done the heavy lifting.
+
+## Claude Code: The Agentic Tool I Use Most
+
+Claude Code is where I've gotten the most practical experience with agentic workflows.
+
+What makes it different from other AI coding tools:
+
+**It actually reads your codebase.** Not just the file you're editing — it can traverse your entire project, understand architecture, follow import chains, and maintain context across dozens of files simultaneously.
+
+**It runs things.** It can execute tests, read error output, and iterate. "Make the tests pass" is a valid instruction. It'll run the tests, read the failures, fix the code, run them again, until they're green.
+
+**It holds multi-step plans.** "Refactor the authentication system to use JWT instead of sessions" is a project, not a task. Claude Code can break this down, execute the steps, and check its own work.
+
+### What I've Learned Using Claude Code Daily
+
+**Write goals, not instructions.**
+
+The worst prompts I give Claude Code are step-by-step instructions. "First do X, then do Y, then do Z." It follows them mechanically, and if my instructions have a bug, the output has a bug.
+
+The best prompts describe the *outcome*: "The checkout flow should work without a page reload. Right now it's reloading on every step. Fix it." The agent figures out the how.
+
+**CLAUDE.md is your agent's memory.**
+
+Every project I work on seriously gets a CLAUDE.md with:
+- Architecture overview
+- Key design decisions and why
+- Conventions I care about
+- Things NOT to do (as important as things to do)
+- How to run tests
+
+This is essentially the briefing document you'd give a new engineer. The agent reads it at the start of every session.
+
+**Let it fail forward.**
+
+When I first started using agentic coding, I'd interrupt when things went sideways. Now I let it run longer before intervening. Agents often recover from intermediate failures. The first approach fails → it reads the error → tries differently → succeeds. This pattern would look alarming partway through but resolves itself.
+
+**The 80/20 of intervention.**
+
+I intervene when:
+- It's clearly going in the wrong direction architecturally (early, not after 20 files changed)
+- It's working around a problem instead of solving it
+- It's about to modify something I didn't expect it to touch
+
+I don't intervene when:
+- It takes a different approach than I would have
+- It's failing and retrying (unless stuck in a loop)
+- The intermediate state looks messy (it usually cleans up)
+
+## Multi-Agent Systems: Where Things Get Complex
+
+Beyond single agents, there's multi-agent orchestration: multiple agents working in parallel or in sequence, each with different capabilities and responsibilities.
+
+I've been exploring this pattern for larger tasks.
+
+A simple example from a project:
+
+```
+Orchestrator Agent
+├── Research Agent (searches web, reads docs)
+├── Code Agent (writes/modifies code)
+├── Test Agent (writes and runs tests)
+└── Review Agent (checks output quality)
+```
+
+The orchestrator breaks down a task, delegates to specialists, aggregates results.
+
+**What works:**
+- Parallelizing independent subtasks (research + write code + write tests simultaneously)
+- Specialist agents with constrained scopes are more reliable than general agents
+- Explicit handoff contracts between agents (what does agent A produce that agent B consumes?)
+
+**What breaks:**
+- Shared mutable state between agents (race conditions, conflicts)
+- Long chains of dependent agents (errors compound)
+- Agents that can spawn unlimited sub-agents (runaway costs, infinite loops)
+
+My current mental model: treat multi-agent systems like distributed systems. Everything that makes distributed systems hard (state management, failure handling, consistency) applies here.
+
+## MCP: The Missing Infrastructure Layer
+
+Model Context Protocol (MCP) is what makes agents genuinely useful in professional contexts.
+
+The idea: instead of every AI tool building its own integrations (GitHub, Slack, databases, APIs), MCP provides a standard protocol for "here are the tools this AI can use."
+
+I've been building and configuring MCP servers, and the mental model shift is significant:
+
+Without MCP: "The AI can only work with what I paste into the chat."
+
+With MCP: "The AI has access to my codebase, my database, my APIs, my browser. It can look things up, take actions, and verify results — all within a session."
+
+A few MCP patterns I've found useful:
+
+**The memory MCP**: Persistent notes the agent can write to and read from across sessions. Agents are stateless by default; giving them a way to persist observations is powerful.
+
+**The codebase MCP**: Index your entire codebase so the agent can search it semantically, not just by filename.
+
+**The database MCP**: Read-only access to production data for investigation and analysis tasks. (Read-only is important. Don't give agents write access to production databases.)
+
+## What Still Doesn't Work
+
+Being honest: there are failure modes I hit regularly.
+
+**Long-horizon planning is fragile.** Agents are good at multi-step execution of clear plans. They're not good at maintaining coherent strategy over many hours of work without human checkpoints.
+
+**Agents lie about capability.** When an agent can't do something, it sometimes makes up a solution instead of admitting limitation. Build verification steps into any workflow that matters.
+
+**Compound tasks create compound errors.** The more steps, the more places an error can propagate. A small wrong assumption in step 3 might not surface until step 15. Build in checkpoints.
+
+**Cost can surprise you.** A task that seems simple can use 100K+ tokens if the agent reads many files. Track usage.
+
+## My Current Setup
+
+The tools I'm actually using:
+- **Claude Code** — daily driver for coding, architecture, debugging
+- **MCP servers** — memory, filesystem, browser for extended sessions
+- **Custom orchestration scripts** — for multi-step pipelines that are too important to run end-to-end unmonitored
+
+The mindset shift that matters most: **I'm not using AI to do tasks faster. I'm using it to do tasks I wouldn't have done at all.**
+
+Before agentic AI, "analyze all 200 support tickets from last quarter and identify the top 5 product gaps" was a task that was technically possible but practically never happened. Now it takes 10 minutes. That's not a productivity improvement. It's a new category of work.
+
+That's what makes this interesting.
+
+*— Deepak*

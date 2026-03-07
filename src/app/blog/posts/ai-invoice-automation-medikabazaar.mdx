@@ -1,0 +1,191 @@
+---
+title: "How We Eliminated 80% of Manual Invoice Processing with AI at India's Largest B2B Healthcare Marketplace"
+publishedAt: "2026-03-07"
+summary: "At Medikabazaar, we process invoices at massive scale — ₹100 Cr+ monthly GMV, thousands of transactions daily. Manual data entry was a bottleneck. Here's how we used OpenAI vision models to solve it, what we learned, and what we'd do differently."
+tag: "AI in Production"
+---
+
+# The Problem: Manual Invoice Processing at Scale
+
+Medikabazaar is India's largest B2B healthcare marketplace — 250K+ verified customers, 5,000+ sellers, ₹100 Cr+ monthly GMV.
+
+Behind every transaction is an invoice. And behind every invoice, until recently, was a human being manually typing data into our system.
+
+Invoice processing sounds simple until you're doing it at scale:
+- Invoices arrive in dozens of formats (PDFs, scans, images, emails)
+- Every supplier formats their invoice differently
+- Data needs to be validated against purchase orders, delivery notes, and our internal catalog
+- Errors propagate downstream into accounting, reconciliation, and credit workflows
+
+Our Accounts Receivable and Accounts Payable teams were spending significant time on data entry that should never have required a human. The error rate was non-trivial, and the delays impacted cash flow.
+
+The question wasn't *whether* to automate. It was *how*.
+
+## Why Traditional Approaches Failed
+
+We'd tried rule-based extraction before. The idea: write regex patterns and parsing logic to extract key fields (invoice number, date, line items, totals, GST numbers).
+
+It failed for predictable reasons:
+- **Too many formats**: Each supplier has their own template. We had 5,000+ sellers.
+- **Layout variance**: Same supplier, different invoice layout month to month.
+- **Image quality**: Many invoices were scanned PDFs with variable quality.
+- **Edge cases compound**: A system that handles 95% of invoices is not production-ready when 5% failure at our volume means hundreds of broken invoices per day.
+
+Template-based solutions require constant maintenance. Every new supplier format requires a new template. It doesn't scale.
+
+## The AI Approach: OpenAI Vision Models
+
+Large vision models can read documents the way a human does — they understand layout, context, and meaning, not just pattern-matching.
+
+We used GPT-4o's vision capabilities (multimodal input) to extract structured data from invoice images and PDFs.
+
+The core flow:
+
+```
+Invoice (PDF/image)
+  → Convert to high-resolution image
+  → Send to GPT-4o with structured extraction prompt
+  → Parse JSON response
+  → Validate against our business rules
+  → Write to database
+```
+
+### The Extraction Prompt
+
+The prompt engineering here matters significantly. We spent considerable time iterating on this.
+
+Our final prompt structure:
+1. **Role context**: You are an invoice processing assistant for a B2B healthcare marketplace in India.
+2. **Required fields**: Explicit list of every field we need (invoice number, date, seller GSTIN, buyer GSTIN, line items with HSN codes, quantities, rates, taxes, totals).
+3. **Output format**: Strict JSON schema with field names and types.
+4. **Edge case handling**: What to do when a field is missing, ambiguous, or illegible.
+5. **Validation rules**: GST number format, date formats, arithmetic checks.
+
+Key insight: **asking the model to return confidence scores for each field** was a game-changer. Fields with low confidence get flagged for human review rather than silently passed through.
+
+```python
+{
+  "invoice_number": { "value": "INV-2024-001234", "confidence": 0.98 },
+  "invoice_date": { "value": "2024-03-15", "confidence": 0.95 },
+  "seller_gstin": { "value": "27AABCU9603R1ZX", "confidence": 0.99 },
+  "line_items": [
+    {
+      "description": "Surgical Gloves (Box of 100)",
+      "hsn_code": "4015190",
+      "quantity": { "value": 50, "confidence": 0.97 },
+      "unit_rate": { "value": 450.00, "confidence": 0.96 },
+      "gst_rate": { "value": 12, "confidence": 0.99 },
+      "total": { "value": 25200.00, "confidence": 0.97 }
+    }
+  ],
+  "grand_total": { "value": 25200.00, "confidence": 0.99 }
+}
+```
+
+### Handling Indian Invoice Complexity
+
+Indian invoices have specific requirements that made this harder than a generic invoice extractor:
+- **GST structure**: CGST + SGST for intra-state, IGST for inter-state. The model needs to understand this distinction.
+- **HSN codes**: 4–8 digit classification codes for every line item. Critical for tax compliance.
+- **E-way bill references**: For goods above ₹50,000, invoices reference e-way bill numbers.
+- **Multiple currency formats**: ₹1,00,000 vs ₹100,000 vs 1 Lakh — all the same number.
+
+We added specific instructions for each of these in the prompt and built validation rules on the backend to catch errors.
+
+## The Architecture
+
+```
+                    ┌─────────────────┐
+Invoice PDF/Image → │  Document Queue  │ (Kafka)
+                    └────────┬────────┘
+                             │
+                    ┌────────▼────────┐
+                    │ Image Processor  │ (Python service)
+                    │ PDF → PNG, DPI   │
+                    └────────┬────────┘
+                             │
+                    ┌────────▼────────┐
+                    │   GPT-4o API    │ (vision extraction)
+                    └────────┬────────┘
+                             │
+                    ┌────────▼────────┐
+                    │   Validator     │ (business rules,
+                    │                 │  arithmetic checks,
+                    │                 │  confidence thresholds)
+                    └────────┬────────┘
+                   ┌─────────┴──────────┐
+             High confidence        Low confidence
+                   │                    │
+          ┌────────▼──────┐    ┌────────▼────────┐
+          │  Auto-approve  │    │  Human Review   │
+          │  write to DB   │    │  Queue          │
+          └───────────────┘    └─────────────────┘
+```
+
+The human review queue was critical to getting buy-in. We weren't asking people to trust the AI blindly — we were asking the AI to handle the clear-cut cases and escalate the ambiguous ones.
+
+## Results
+
+After 3 months in production:
+
+- **80% reduction in manual data entry** — the vast majority of invoices now process end-to-end without human touch
+- **Processing time**: from 2-4 hours (manual batch) to under 5 minutes per invoice
+- **Error rate**: significantly lower than manual entry (humans make transcription errors; the model makes reasoning errors, which are different and more detectable)
+- **Human review queue**: the remaining 20% takes less total time than 100% used to, because reviewers only handle edge cases and the data is pre-populated
+
+The accounting team's feedback was telling: "We used to dread invoice season. Now it mostly just happens."
+
+## What We Learned
+
+**1. Confidence scores beat accuracy targets**
+
+Don't aim for 99% accuracy. Aim for "we know when we're uncertain." A system that's 99% accurate and doesn't know it's wrong is dangerous. A system that's 95% accurate and flags its own uncertainty is production-ready.
+
+**2. Prompt engineering is engineering**
+
+We went through 15+ iterations of the extraction prompt. Each version was a hypothesis. We tracked extraction quality on a held-out set of 500 invoices and measured regression with each change. Treat prompts like code.
+
+**3. The hard part is validation, not extraction**
+
+GPT-4o extracts data remarkably well. The hard part is: is the extracted data *correct*? We built a suite of validation rules:
+- GST arithmetic must balance (CGST + SGST = IGST or both must be present for intra/inter-state)
+- Line item totals must sum to grand total (within rounding tolerance)
+- GSTIN format validation
+- Date sanity checks
+- Duplicate invoice detection
+
+These rules catch the cases where the model confidently returns wrong data.
+
+**4. Rollout strategy matters more than the model**
+
+We didn't flip a switch. We ran parallel processing (AI + human) for 4 weeks, compared outputs, built trust with the ops team, then gradually shifted more volume to automation. The people using the system needed to trust it before it could deliver value.
+
+**5. Cost is manageable at scale**
+
+GPT-4o vision calls aren't free, but at our volume, the cost per invoice was well below the labor cost of manual entry. Do the math before anyone tells you "AI is too expensive."
+
+## What I'd Do Differently
+
+**Use a smaller model for simple invoices**: We now know that a significant portion of our invoice volume is "simple" (single-line item, standard format, clean scan). For these, a smaller, cheaper model works fine. We're exploring a routing layer that sends simple invoices to a cheaper model and complex ones to GPT-4o.
+
+**Better feedback loops**: When a human corrects an AI extraction, that correction should feed back into improving the system. We didn't build this initially and it's now on the roadmap.
+
+**Structured output from the start**: We initially parsed free-text JSON from the model. Switching to OpenAI's structured outputs feature (JSON mode with schema enforcement) eliminated an entire class of parsing errors.
+
+## The Broader Lesson
+
+This project changed how I think about AI adoption in enterprises.
+
+The barrier isn't technology — GPT-4o can read invoices better than most humans. The barrier is trust, process integration, and change management.
+
+The teams that succeed with AI in production are the ones that:
+1. Start with a narrow, well-defined problem
+2. Build in human oversight from day one
+3. Measure rigorously
+4. Expand scope only after trust is established
+
+We started with one invoice type, one supplier segment, one team. Now it's the default for the entire platform.
+
+That's the playbook.
+
+*— Deepak*
