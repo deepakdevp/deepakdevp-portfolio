@@ -35,6 +35,11 @@ const social = [
     icon: "linkedin",
     link: "https://www.linkedin.com/in/deepak-dev-panwar-166187135/",
   },
+  {
+    name: "X",
+    icon: "x",
+    link: "https://x.com/DeepakDev2012",
+  },
 
   {
     name: "Email",
