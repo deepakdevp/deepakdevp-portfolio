@@ -1,21 +1,20 @@
-import Image from "next/image";
-
 import {
-  Heading,
-  Flex,
-  Text,
-  Button,
   Avatar,
-  RevealFx,
-  Column,
   Badge,
+  Button,
+  Column,
+  Flex,
+  Heading,
+  RevealFx,
   Row,
   Schema,
+  Text,
 } from "@once-ui-system/core";
-import { home, about, person, currently, baseURL, routes } from "@/resources";
+import Image from "next/image";
+import { Posts } from "@/components/blog/Posts";
 import { ContactMe } from "@/components/ContactMe";
 import { Projects } from "@/components/work/Projects";
-import { Posts } from "@/components/blog/Posts";
+import { about, baseURL, currently, home, person, routes } from "@/resources";
 
 export default function Home() {
   return (
@@ -149,10 +148,6 @@ export default function Home() {
         </RevealFx>
       )}
 
-      <RevealFx translateY="16" delay={0.6}>
-        <Projects range={[1, 1]} />
-      </RevealFx>
-
       {routes["/blog"] && (
         <Flex fillWidth gap="24" mobileDirection="column">
           <Flex flex={1} paddingX="l" paddingTop="24">
@@ -165,7 +160,8 @@ export default function Home() {
           </Flex>
         </Flex>
       )}
-      <Projects range={[2]} />
+
+      <Projects />
       <ContactMe />
     </Column>
   );

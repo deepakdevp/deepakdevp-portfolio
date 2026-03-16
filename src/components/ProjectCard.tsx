@@ -1,14 +1,7 @@
 "use client";
 
-import {
-  AvatarGroup,
-  Column,
-  Flex,
-  Heading,
-  Media,
-  SmartLink,
-  Text,
-} from "@once-ui-system/core";
+import { Flex, Heading, LetterFx, Media, SmartLink, Text, TiltFx } from "@once-ui-system/core";
+import styles from "./ProjectCard.module.scss";
 
 interface ProjectCardProps {
   href: string;
@@ -19,6 +12,8 @@ interface ProjectCardProps {
   description: string;
   avatars: { src: string }[];
   link: string;
+  tags?: string[];
+  variant?: "featured" | "compact";
 }
 
 export const ProjectCard: React.FC<ProjectCardProps> = ({
@@ -27,95 +22,93 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   title,
   content,
   description,
-  avatars,
   link,
+  tags = [],
+  variant = "compact",
 }) => {
+  const isFeatured = variant === "featured";
+
   return (
-    <Flex
-      fillWidth
-      gap="l"
-      mobileDirection="column"
-      padding="m"
-      radius="l"
-      border="neutral-alpha-weak"
-      background="surface"
-      style={{
-        transition: 'all 0.2s ease',
-      }}
-    >
-      {/* Compact image on the left */}
-      {images.length > 0 && (
-        <Flex
-          style={{
-            width: '280px',
-            minWidth: '280px',
-            height: '180px',
-            overflow: 'hidden',
-            borderRadius: 'var(--radius-m)',
-          }}
-        >
-          <Media
-            src={images[0]}
-            alt={title}
-            sizes="280px"
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-            }}
-          />
-        </Flex>
-      )}
-      
-      {/* Content on the right */}
-      <Column flex={1} gap="12" vertical="center">
-        {title && (
-          <Heading as="h2" wrap="balance" variant="heading-strong-l">
-            {title}
-          </Heading>
-        )}
-        
-        {avatars?.length > 0 && (
-          <AvatarGroup avatars={avatars} size="s" reverse />
-        )}
-        
-        {description?.trim() && (
-          <Text
-            wrap="balance"
-            variant="body-default-s"
-            onBackground="neutral-weak"
-            style={{
-              display: '-webkit-box',
-              WebkitLineClamp: 3,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
-            }}
-          >
-            {description}
-          </Text>
-        )}
-        
-        <Flex gap="16" wrap style={{ marginTop: 'auto' }}>
-          {content?.trim() && (
-            <SmartLink
-              suffixIcon="arrowRight"
-              style={{ margin: "0", width: "fit-content" }}
-              href={href}
+    <TiltFx>
+      <SmartLink href={href} unstyled style={{ display: "block", width: "100%" }}>
+        <div className={`${styles.card} ${isFeatured ? styles.featured : styles.compact}`}>
+          {/* Image */}
+          {images.length > 0 && (
+            <div
+              className={isFeatured ? styles.featuredImageContainer : styles.compactImageContainer}
             >
-              <Text variant="body-default-s">Read case study</Text>
-            </SmartLink>
+              <Media
+                src={images[0]}
+                alt={title}
+                sizes={
+                  isFeatured ? "(max-width: 768px) 100vw, 55vw" : "(max-width: 768px) 100vw, 50vw"
+                }
+                className={styles.image}
+              />
+            </div>
           )}
-          {link && (
-            <SmartLink
-              suffixIcon="arrowUpRightFromSquare"
-              style={{ margin: "0", width: "fit-content" }}
-              href={link}
-            >
-              <Text variant="body-default-s">View project</Text>
-            </SmartLink>
-          )}
-        </Flex>
-      </Column>
-    </Flex>
+
+          {/* Content */}
+          <div className={isFeatured ? styles.featuredContent : styles.compactContent}>
+            {/* Tags */}
+            {tags.length > 0 && (
+              <div className={styles.tags}>
+                {tags.slice(0, isFeatured ? 5 : 3).map((tag) => (
+                  <span key={tag} className={styles.tag}>
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* Title with LetterFx */}
+            {title && (
+              <Heading
+                as="h2"
+                wrap="balance"
+                variant={isFeatured ? "heading-strong-xl" : "heading-strong-l"}
+              >
+                <LetterFx trigger="hover" speed="fast">
+                  {title}
+                </LetterFx>
+              </Heading>
+            )}
+
+            {/* Description */}
+            {description?.trim() && (
+              <Text
+                wrap="balance"
+                variant="body-default-s"
+                onBackground="neutral-weak"
+                className={`${styles.description} ${isFeatured ? styles.descriptionFeatured : ""}`}
+              >
+                {description}
+              </Text>
+            )}
+
+            {/* Action Links */}
+            <Flex className={styles.actions}>
+              {content?.trim() && (
+                <Text variant="body-default-s" onBackground="brand-strong">
+                  Read case study &rarr;
+                </Text>
+              )}
+              {link && (
+                <SmartLink
+                  href={link}
+                  unstyled
+                  style={{ display: "inline-flex" }}
+                  onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                >
+                  <Text variant="body-default-s" onBackground="neutral-weak">
+                    View project &#8599;
+                  </Text>
+                </SmartLink>
+              )}
+            </Flex>
+          </div>
+        </div>
+      </SmartLink>
+    </TiltFx>
   );
 };

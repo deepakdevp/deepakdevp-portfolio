@@ -84,7 +84,7 @@ const home = {
   description: `Portfolio website showcasing my work as a ${person.role}`,
   headline: <>Building products in the age of AI</>,
   featured: {
-    display: true,
+    display: false,
     title: (
       <>
         Recent project: <strong className="ml-4">AI Health Assistant</strong>
@@ -94,8 +94,8 @@ const home = {
   },
   subline: (
     <>
-      I'm Deepak Dev — I build with AI. RAG systems, agentic workflows, MCP servers, and LLM-powered
-      products. Currently shipping AI at Medikabazaar and helping teams move faster with AI tools.
+      I'm Deepak Dev — I build with AI. RAG systems, agentic workflows, and LLM-powered products.
+      Currently shipping AI at Medikabazaar and helping teams move faster with AI tools.
       <br />
       Also learning Japanese (JLPT N5) こんにちは！
     </>
